@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'burger_shop',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
