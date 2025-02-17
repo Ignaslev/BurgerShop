@@ -18,9 +18,20 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInline]
 
 
+class IngredientAdmin(admin.ModelAdmin):
+    list_display = ('category', 'name', 'price')
+    list_filter = ('category',)
+    list_editable = ('price',)
+
+
+class MenuItemAdmin(admin.ModelAdmin):
+    list_display = ('category', 'name', 'price')
+    list_filter = ('category',)
+    list_editable = ('price',)
+
 admin.site.register(Profile)
 admin.site.register(Order, OrderAdmin)
-admin.site.register(MenuItem)
+admin.site.register(MenuItem, MenuItemAdmin)
 admin.site.register(CustomBurger,CustomBurgerAdmin)
-admin.site.register(Ingredient)
+admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(BlogPost)
