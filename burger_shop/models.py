@@ -76,7 +76,7 @@ class MenuItem(models.Model):
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     menu_item = models.ForeignKey(MenuItem, on_delete=models.SET_NULL, blank=True, null=True)
-    custom_burger = models.ForeignKey('CustomBurger', on_delete=models.CASCADE, blank=True, null=True)
+    custom_burger = models.ForeignKey('CustomBurger', on_delete=models.SET_NULL, blank=True, null=True)
     quantity = models.IntegerField('Quantity')
 
     @property
