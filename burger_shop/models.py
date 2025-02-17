@@ -16,7 +16,7 @@ class Profile(models.Model):
         verbose_name_plural = 'Profiles'
 
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     time = models.DateField(auto_now_add=True)
 
     ORDER_STATUS = (
@@ -51,7 +51,8 @@ class Order(models.Model):
         pass
 
     def __str__(self):
-        return f'{self.user.id}. {self.user}, {self.time}'
+        user_info = f'{self.user.id}. {self.user}' if self.user else 'No user'
+        return f'{user_info}, {self.time}'
 
     class Meta:
         verbose_name = 'Order'
@@ -74,7 +75,7 @@ class MenuItem(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    menu_item = models.ForeignKey(MenuItem, on_delete=models.CASCADE, blank=True, null=True)
+    menu_item = models.ForeignKey(MenuItem, on_delete=models.SET_NULL, blank=True, null=True)
     custom_burger = models.ForeignKey('CustomBurger', on_delete=models.CASCADE, blank=True, null=True)
     quantity = models.IntegerField('Quantity')
 
@@ -95,7 +96,7 @@ class OrderItem(models.Model):
 
 
 class CustomBurger(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     name = models.CharField('Name', max_length=50)
     image = models.ImageField(upload_to='users_burgers', blank=True, null=True)
 
@@ -122,12 +123,12 @@ class Ingredient(models.Model):
         return f'{self.name}, {self.price}eur'
 
     class Meta:
-        verbose_name = 'Ingridient'
-        verbose_name_plural = 'Ingridients'
+        verbose_name = 'Ingredient'
+        verbose_name_plural = 'Ingredients'
 
 
 class CustomBurgerRecipe(models.Model):
-    custom_burger = models.ForeignKey(CustomBurger, on_delete=models.SET_NULL, null=True, blank=True)
+    custom_burger = models.ForeignKey(CustomBurger, on_delete=models.CASCADE, null=True, blank=True)
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE, null=True, blank=True)
     quantity = models.IntegerField('Quantity')
 
