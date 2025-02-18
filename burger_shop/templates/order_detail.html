@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<h4>Your Order</h4>
+<ul class="list-group mb-3">
+    {% for item in order_items %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ item.menu_item.name }} (x{{ item.quantity }}) - {{ item.menu_item.price|floatformat:2 }}eur each
+            <span>
+                <form method="post" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="remove_item_id" value="{{ item.id }}">
+                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                </form>
+            </span>
+        </li>
+    {% empty %}
+        <li class="list-group-item">Your order is empty.</li>
+    {% endfor %}
+</ul>
+
+{% if order_items %}
+    <div class="d-flex justify-content-between mb-3">
+       <p><strong>Total:</strong> {{ total_price }} eur</p>
+
+    </div>
+
+{% endif %}
+
+<h2>Menu:</h2>
+
+<h4>Burgers:</h4>
+<div class="row">
+    {% for burger in burgers %}
+        <div class="col-sm-6 col-md-3 d-flex align-items-stretch">
+            <div class="card mb-4 shadow">
+                {% if burger.image %}
+                    <img class="card-img-top" src="{{ burger.image.url }}">
+                {% else %}
+                    <img class="card-img-top" src="{% static 'img/no-image.png' %}">
+                {% endif %}
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="menu_item_id" value="{{ burger.id }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ burger.name }}</h5>
+                        <p class="card-text"><strong>Price:</strong> {{ burger.price }}eur</p>
+                        <input type="number" name="quantity" value="1" min="1" class="form-control mb-2" style="width: 80px;">
+                        <button type="submit" class="btn btn-primary">Add to Order</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+<h4>Sides:</h4>
+<div class="row">
+    {% for side in sides %}
+        <div class="col-sm-6 col-md-3 d-flex align-items-stretch">
+            <div class="card mb-4 shadow">
+                {% if side.image %}
+                    <img class="card-img-top" src="{{ side.image.url }}">
+                {% else %}
+                    <img class="card-img-top" src="{% static 'img/no-image.png' %}">
+                {% endif %}
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="menu_item_id" value="{{ side.id }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ side.name }}</h5>
+                        <p class="card-text"><strong>Price:</strong> {{ side.price }}eur</p>
+                        <input type="number" name="quantity" value="1" min="1" class="form-control mb-2" style="width: 80px;">
+                        <button type="submit" class="btn btn-primary">Add to Order</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+<h4>Drinks:</h4>
+<div class="row">
+    {% for drink in drinks %}
+        <div class="col-sm-6 col-md-3 d-flex align-items-stretch">
+            <div class="card mb-4 shadow">
+                {% if drink.image %}
+                    <img class="card-img-top" src="{{ drink.image.url }}">
+                {% else %}
+                    <img class="card-img-top" src="{% static 'img/no-image.png' %}">
+                {% endif %}
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="menu_item_id" value="{{ drink.id }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ drink.name }}</h5>
+                        <p class="card-text"><strong>Price:</strong> {{ drink.price }}eur</p>
+                        <input type="number" name="quantity" value="1" min="1" class="form-control mb-2" style="width: 80px;">
+                        <button type="submit" class="btn btn-primary">Add to Order</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<h4>Your Order</h4>
+<ul class="list-group mb-3">
+    {% for item in order_items %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ item.menu_item.name }} (x{{ item.quantity }}) - {{ item.menu_item.price|floatformat:2 }}eur each
+            <span>
+                <form method="post" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="remove_item_id" value="{{ item.id }}">
+                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                </form>
+            </span>
+        </li>
+    {% empty %}
+        <li class="list-group-item">Your order is empty.</li>
+    {% endfor %}
+</ul>
+
+{% if order_items %}
+    <div class="d-flex justify-content-between mb-3">
+       <p><strong>Total:</strong> {{ total_price }} eur</p>
+
+    </div>
+    <a href="{% url 'finalize_order' order.id %}" class="btn btn-success">Finalize Order</a>
+{% endif %}
+
+
+{% endblock %}

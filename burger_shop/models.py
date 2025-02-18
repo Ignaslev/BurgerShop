@@ -54,7 +54,7 @@ class Order(models.Model):
 
     @property
     def total_price(self):
-        pass
+        return sum(item.total_price for item in self.orderitem_set.all())
 
     def __str__(self):
         user_info = f'{self.user.id}. {self.user}' if self.user else 'No user'
@@ -89,7 +89,11 @@ class OrderItem(models.Model):
 
     @property
     def total_price(self):
-        ...
+        if self.menu_item:
+            return self.menu_item.price * self.quantity
+        elif self.custom_burger:
+            return 0
+        return 0
 
     def __str__(self):
         if self.menu_item:

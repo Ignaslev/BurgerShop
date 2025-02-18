@@ -6,7 +6,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 
 from .forms import UserUpdateForm, ProfileUpdateForm
-from .models import User, MenuItem
+from .models import User, MenuItem, Order, OrderItem
 
 
 def index(request):
@@ -88,3 +88,110 @@ def get_user_profile(request):
     }
 
     return render(request, 'profile.html', context=context)
+
+
+@login_required
+def start_order(request):
+    order = Order.objects.create(user=request.user, order_status='d')
+
+    return redirect('order_detail', order_id=order.id)
+
+
+@login_required
+def order_detail(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    burgers = MenuItem.objects.filter(category='Burgers')
+    sides = MenuItem.objects.filter(category='Sides')
+    drinks = MenuItem.objects.filter(category='Drinks')
+
+    menu_items = MenuItem.objects.all()
+
+    order_items = order.orderitem_set.all()
+
+    total_price = sum(item.menu_item.price * item.quantity for item in order_items)
+
+    if request.method == 'POST':
+        remove_item_id = request.POST.get('remove_item_id')
+        if remove_item_id:
+            order_item_to_remove = get_object_or_404(OrderItem, id=remove_item_id, order=order)
+            order_item_to_remove.delete()
+            return redirect('order_detail', order_id=order.id)
+
+        menu_item_id = request.POST.get('menu_item_id')
+        quantity = int(request.POST.get('quantity', 1))
+
+        if menu_item_id and quantity > 0:
+            menu_item = get_object_or_404(MenuItem, id=menu_item_id)
+
+            # Check if item is already in the order, update quantity
+            order_item, created = OrderItem.objects.get_or_create(
+                order=order,
+                menu_item=menu_item,
+                defaults={'quantity': quantity}
+            )
+
+            if not created:
+                order_item.quantity += quantity
+                order_item.save()
+
+        return redirect('order_detail', order_id=order.id)
+
+    context = {
+        'order': order,
+        'menu_items': menu_items,
+        'order_items': order_items,
+        'burgers': burgers,
+        'sides': sides,
+        'drinks': drinks,
+        'total_price' : total_price,
+    }
+    return render(request, 'order_detail.html', context)
+
+
+@login_required
+def finalize_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+
+    if order.order_status != 'd':
+        return redirect('order_detail', order_id=order.id)
+
+    order_items = order.orderitem_set.all()
+
+    total_price = sum(item.menu_item.price * item.quantity for item in order_items)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'update':
+            for item in order_items:
+                quantity = int(request.POST.get(f'quantity_{item.id}', item.quantity))
+                if quantity > 0:
+                    item.quantity = quantity
+                    item.save()
+                else:
+                    item.delete()
+
+        elif action.startswith('remove_'):
+            item_id = int(action.split('_')[1])
+            order_item = get_object_or_404(OrderItem, id=item_id, order=order)
+            order_item.delete()
+
+        elif action == 'confirm':
+            if order_items.exists():
+                order.order_status = 'co'
+                order.save()
+                return redirect('order_success')
+
+        return redirect('finalize_order', order_id=order.id)
+
+    context = {
+        'order': order,
+        'order_items': order_items,
+        'total_price': total_price,
+    }
+    return render(request, 'finalize_order.html', context)
+
+def order_success(request):
+    return render(request, 'order_success.html')
