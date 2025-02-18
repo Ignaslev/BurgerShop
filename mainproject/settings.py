@@ -31,7 +31,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'burger_shop',
+    'burger_shop.apps.BurgerShopConfig',
+    'crispy_forms',
+    'crispy_bootstrap4',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -136,3 +138,5 @@ EMAIL_USE_TLS = False
 EMAIL_HOST_USER = EMAIL
 EMAIL_HOST_PASSWORD = EMAIL_PASSWORD
 DEFAULT_FROM_EMAIL = EMAIL
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'

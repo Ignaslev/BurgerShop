@@ -3,8 +3,9 @@ from django.shortcuts import HttpResponse
 from django.views.decorators.csrf import csrf_protect
 from django.contrib import messages
 from django.contrib.auth.models import Group
+from django.contrib.auth.decorators import login_required
 
-
+from .forms import UserUpdateForm, ProfileUpdateForm
 from .models import User
 
 
@@ -52,3 +53,27 @@ def register_user(request):
 
         messages.info(request, f'Registration of {username} successful')
         return redirect('login')
+
+
+@login_required
+def get_user_profile(request):
+    if request.method == 'POST':
+        p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        u_form = UserUpdateForm(request.POST, instance=request.user)
+        if p_form.is_valid() and u_form.is_valid():
+            p_form.save()
+            u_form.save()
+            messages.info(request, 'Profile updated')
+        else:
+            messages.error(request, 'Error')
+        return redirect('user-profile')
+
+    p_form = ProfileUpdateForm(instance=request.user.profile)
+    u_form = UserUpdateForm(instance=request.user)
+
+    context = {
+        'p_form': p_form,
+        'u_form': u_form
+    }
+
+    return render(request, 'profile.html', context=context)
