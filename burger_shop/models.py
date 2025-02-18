@@ -23,7 +23,7 @@ class Profile(models.Model):
 
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    time = models.DateField(auto_now_add=True)
+    time = models.DateTimeField(auto_now_add=True)
 
     ORDER_STATUS = (
         ('d', 'Draft'),

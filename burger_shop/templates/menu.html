@@ -9,7 +9,7 @@
         <div class="col-sm-6 col-md-3 d-flex align-items-stretch">
             <div class="card mb-4 shadow">
                 {% if burger.image %}
-                    <img class="card-img-top" src="{{ burger.image.url }}">
+                    <img class="card-img-top" src="{{ burger.image.url }}" style="object-fit: contain;">
                 {% else %}
                     <img class="card-img-top" src="{% static 'img/no-image.png' %}">
                 {% endif %}
@@ -29,7 +29,7 @@
         <div class="col-sm-6 col-md-3 d-flex align-items-stretch">
             <div class="card mb-4 shadow">
                 {% if side.image %}
-                    <img class="card-img-top" src="{{ side.image.url }}">
+                    <img class="card-img-top" src="{{ side.image.url }}" style="object-fit: contain;">
                 {% else %}
                     <img class="card-img-top" src="{% static 'img/no-image.png' %}">
                 {% endif %}
@@ -49,7 +49,7 @@
         <div class="col-sm-6 col-md-3 d-flex align-items-stretch">
             <div class="card mb-4 shadow">
                 {% if drink.image %}
-                    <img class="card-img-top" src="{{ drink.image.url }}">
+                    <img class="card-img-top" src="{{ drink.image.url }}" style="object-fit: contain;">
                 {% else %}
                     <img class="card-img-top" src="{% static 'img/no-image.png' %}">
                 {% endif %}

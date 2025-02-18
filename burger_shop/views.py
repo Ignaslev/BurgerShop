@@ -195,3 +195,9 @@ def finalize_order(request, order_id):
 
 def order_success(request):
     return render(request, 'order_success.html')
+
+
+@login_required
+def user_orders(request):
+    orders = Order.objects.filter(user=request.user).prefetch_related('orderitem_set__menu_item', 'orderitem_set__custom_burger').order_by('-time')
+    return render(request, 'user_orders.html', {'orders': orders})
