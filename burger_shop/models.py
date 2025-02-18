@@ -70,6 +70,7 @@ class MenuItem(models.Model):
     name = models.CharField('Name', max_length=50)
     description = models.TextField('Description', max_length=150)
     price = models.DecimalField('Price', max_digits=30, decimal_places=2)
+    image = models.ImageField(upload_to='menu_items/', blank=True, null=True)
 
     def __str__(self):
         return f'{self.name}, {self.price}eur'
@@ -84,6 +85,7 @@ class OrderItem(models.Model):
     menu_item = models.ForeignKey(MenuItem, on_delete=models.SET_NULL, blank=True, null=True)
     custom_burger = models.ForeignKey('CustomBurger', on_delete=models.SET_NULL, blank=True, null=True)
     quantity = models.IntegerField('Quantity')
+
 
     @property
     def total_price(self):

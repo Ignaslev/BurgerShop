@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Menu</h1>
+<h4>Burgers:</h4>
+<div class="row">
+    {% for burger in burgers %}
+        <div class="col-sm-6 col-md-3 d-flex align-items-stretch">
+            <div class="card mb-4 shadow">
+                {% if burger.image %}
+                    <img class="card-img-top" src="{{ burger.image.url }}">
+                {% else %}
+                    <img class="card-img-top" src="{% static 'img/no-image.png' %}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ burger.name }}</h5>
+                    <p class="card-text"><strong>Price:</strong> {{ burger.price }}eur</p>
+
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<h4>Sides:</h4>
+<div class="row">
+    {% for side in sides %}
+        <div class="col-sm-6 col-md-3 d-flex align-items-stretch">
+            <div class="card mb-4 shadow">
+                {% if side.image %}
+                    <img class="card-img-top" src="{{ side.image.url }}">
+                {% else %}
+                    <img class="card-img-top" src="{% static 'img/no-image.png' %}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ side.name }}</h5>
+                    <p class="card-text"><strong>Price:</strong> {{ side.price }}eur</p>
+
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<h4>Drinks:</h4>
+<div class="row">
+    {% for drink in drinks %}
+        <div class="col-sm-6 col-md-3 d-flex align-items-stretch">
+            <div class="card mb-4 shadow">
+                {% if drink.image %}
+                    <img class="card-img-top" src="{{ drink.image.url }}">
+                {% else %}
+                    <img class="card-img-top" src="{% static 'img/no-image.png' %}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ drink.name }}</h5>
+                    <p class="card-text"><strong>Price:</strong> {{ drink.price }}eur</p>
+
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

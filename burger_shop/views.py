@@ -6,12 +6,23 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 
 from .forms import UserUpdateForm, ProfileUpdateForm
-from .models import User
+from .models import User, MenuItem
 
 
 def index(request):
     return render(request, 'index.html')
 
+def menu(request):
+    burgers = MenuItem.objects.filter(category='Burgers').all()
+    sides = MenuItem.objects.filter(category='Sides').all()
+    drinks = MenuItem.objects.filter(category='Drinks').all()
+
+    context = {
+        'burgers' : burgers,
+        'sides' : sides,
+        'drinks' : drinks,
+    }
+    return render(request, 'menu.html', context=context)
 
 @csrf_protect
 def register_user(request):
