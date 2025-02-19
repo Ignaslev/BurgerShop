@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 
+app_name = 'burger_shop'
 
 urlpatterns = [
     path('', views.index, name='homepage'),
@@ -11,6 +12,7 @@ urlpatterns = [
     path('order/<int:order_id>/', views.order_detail, name='order_detail'),
     path('order/<int:order_id>/finalize/', views.finalize_order, name='finalize_order'),
     path('order/success/', views.order_success, name='order_success'),
-    path('my-orders/', views.user_orders, name='user_orders')
+    path('my-orders/', views.user_orders, name='user_orders'),
+    path('create-burger/', views.create_burger, name='create_burger'),
 
 ]

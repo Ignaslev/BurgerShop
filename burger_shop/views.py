@@ -5,8 +5,8 @@ from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 
-from .forms import UserUpdateForm, ProfileUpdateForm
-from .models import User, MenuItem, Order, OrderItem
+from .forms import UserUpdateForm, ProfileUpdateForm, CustomBurgerForm
+from .models import User, MenuItem, Order, OrderItem, CustomBurger, CustomBurgerRecipe, Ingredient
 
 
 def index(request):
@@ -201,3 +201,47 @@ def order_success(request):
 def user_orders(request):
     orders = Order.objects.filter(user=request.user).prefetch_related('orderitem_set__menu_item', 'orderitem_set__custom_burger').order_by('-time')
     return render(request, 'user_orders.html', {'orders': orders})
+
+
+@login_required
+def create_burger(request):
+    if request.method == 'POST':
+        burger_name = request.POST.get('name')
+        bun_id = request.POST.get('bun_id')
+        ingredients_data = request.POST.get('ingredients')
+
+        if not ingredients_data:
+            return render(request, 'create_burger.html', {'form': CustomBurgerForm(), 'error': 'Please select ingredients!'})
+
+        # PUTTING INGRIDIENTS ID'S IN LIST
+        ingredient_ids = [int(i) for i in ingredients_data.split(',')]
+
+        if bun_id:
+            ingredient_ids.append(int(bun_id))
+
+        # CREATING CUSTOM BURGER OBJECT
+        burger = CustomBurger.objects.create(
+            user=request.user,
+            name=burger_name
+        )
+
+        # CREATE CUSTOM BURGER RECEPIE (LINKED TO CUSTOM BURGER)
+        ingredient_quantities = {}
+        for ing_id in ingredient_ids:
+            if ing_id in ingredient_quantities:
+                ingredient_quantities[ing_id] += 1
+            else:
+                ingredient_quantities[ing_id] = 1
+
+        for ing_id, quantity in ingredient_quantities.items():
+            ingredient = Ingredient.objects.get(id=ing_id)
+            CustomBurgerRecipe.objects.create(
+                custom_burger=burger,
+                ingredient=ingredient,
+                quantity=quantity
+            )
+
+        return redirect('burger_shop:create_burger')
+
+    form = CustomBurgerForm()
+    return render(request, 'create_burger.html', {'form': form})

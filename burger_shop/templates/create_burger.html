@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h4>Create Your Custom Burger</h4>
+
+<form method="post" id="burgerForm">
+    {% csrf_token %}
+    <p>{{ form.name.label }}: {{ form.name }}</p>
+
+    <p>{{ form.bun.label }}:</p>
+    {{ form.bun }}
+
+    <p>Choose Your Ingredients:</p>
+    <div id="ingredientList">
+        {% for ingredient in form.fields.ingredients.queryset %}
+            <div>
+                <span>{{ ingredient.name }}</span>
+                <button type="button" class="add-ingredient" data-id="{{ ingredient.id }}" data-name="{{ ingredient.name }}">
+                    Add
+                </button>
+            </div>
+        {% endfor %}
+    </div>
+
+    <h5>Added Ingredients:</h5>
+    <ul id="addedIngredientsList"></ul>
+
+    <input type="hidden" name="bun_id" id="bunIdInput">
+    <input type="hidden" name="ingredients" id="ingredientsInput">
+    <button type="submit">Submit Burger</button>
+</form>
+
+<script>
+    // Store added ingredients as {id: {name: ..., quantity: ...}}
+    const addedIngredients = {};
+
+    // Find all "Add" buttons
+    const addButtons = document.querySelectorAll('.add-ingredient');
+
+    // Get the preview list UL
+    const addedIngredientsList = document.getElementById('addedIngredientsList');
+
+    // Add event listeners to every button
+    addButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const ingredientId = this.dataset.id; // Get ingredient ID
+            const ingredientName = this.dataset.name; // Get ingredient Name
+
+            // If ingredient already in list -> Increase quantity
+            if (addedIngredients[ingredientId]) {
+                addedIngredients[ingredientId].quantity += 1;
+            } else {
+                // If not -> Add to list with quantity 1
+                addedIngredients[ingredientId] = {
+                    name: ingredientName,
+                    quantity: 1
+                };
+            }
+
+            // Update the preview display
+            updateIngredientsPreview();
+        });
+    });
+
+    // Update the list visually
+    function updateIngredientsPreview() {
+        // Clear existing list
+        addedIngredientsList.innerHTML = '';
+
+        // Display chosen bun first
+        if (chosenBun) {
+            const bunItem = document.createElement('li');
+            bunItem.textContent = `Bun: ${chosenBun.name}`;
+            addedIngredientsList.appendChild(bunItem);
+    }
+
+        // Loop over addedIngredients and display
+        for (const id in addedIngredients) {
+            const ingredient = addedIngredients[id];
+            const listItem = document.createElement('li');
+            listItem.textContent = `${ingredient.name} x ${ingredient.quantity}`;
+            addedIngredientsList.appendChild(listItem);
+        }
+    }
+
+    // Store chosen bun separately
+    let chosenBun = null;
+
+    // Find the bun radio buttons
+    const bunRadios = document.querySelectorAll('input[name="bun"]');
+
+    // Add listener to update chosenBun when user selects a bun
+    bunRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            const bunId = this.value;
+            const bunName = this.nextSibling.textContent.trim();
+
+            chosenBun = { id: bunId, name: bunName };
+
+            updateIngredientsPreview();
+        });
+    });
+
+    document.getElementById('burgerForm').addEventListener('submit', function (e) {
+    // 1. Get selected bun ID
+    const selectedBunId = document.querySelector('input[name="bun"]:checked').value;
+
+    // 2. Get ingredient IDs
+    const ingredientIds = [];
+    for (const id in addedIngredients) {
+        for (let i = 0; i < addedIngredients[id].quantity; i++) {
+            ingredientIds.push(id);
+        }
+    }
+
+    // 3. Set hidden inputs
+    document.getElementById('bunIdInput').value = selectedBunId;
+    document.getElementById('ingredientsInput').value = ingredientIds.join(',');
+
+});
+</script>
+
+{% endblock %}
