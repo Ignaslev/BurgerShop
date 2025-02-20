@@ -3,31 +3,30 @@
 
 {% block content %}
 
-<h4>Your Order</h4>
+<h4>Your Order:</h4>
 <ul class="list-group mb-3">
     {% for item in order_items %}
         <li class="list-group-item d-flex justify-content-between align-items-center">
-            {{ item.menu_item.name }} (x{{ item.quantity }}) - {{ item.menu_item.price|floatformat:2 }}eur each
-            <span>
-                <form method="post" class="d-inline">
+            {% if item.menu_item %}
+                  <span><strong> {{ item.menu_item.name }}</strong> x {{ item.quantity }} – {{ item.total_item_price }} EUR</span>
+                {% elif item.custom_burger %}
+                   <span><strong>Custom burger: {{ item.custom_burger.name }}</strong> x {{ item.quantity }} – {{ item.total_item_price }} EUR</span>
+                {% endif %}
+                <form method="post" style="display:inline;">
                     {% csrf_token %}
                     <input type="hidden" name="remove_item_id" value="{{ item.id }}">
                     <button type="submit" class="btn btn-danger btn-sm">Remove</button>
                 </form>
-            </span>
         </li>
     {% empty %}
         <li class="list-group-item">Your order is empty.</li>
     {% endfor %}
 </ul>
 
-{% if order_items %}
-    <div class="d-flex justify-content-between mb-3">
-       <p><strong>Total:</strong> {{ total_price }} eur</p>
+<div class="d-flex justify-content-between mb-3">
+   <p><strong>Total:</strong> {{ total_price }} eur</p>
+</div>
 
-    </div>
-
-{% endif %}
 
 <h2>Menu:</h2>
 
@@ -43,7 +42,8 @@
                 {% endif %}
                 <form method="post">
                     {% csrf_token %}
-                    <input type="hidden" name="menu_item_id" value="{{ burger.id }}">
+                    <input type="hidden" name="item_type" value="menu_item">
+                    <input type="hidden" name="item_id" value="{{ burger.id }}">
                     <div class="card-body">
                         <h5 class="card-title">{{ burger.name }}</h5>
                         <p class="card-text"><strong>Price:</strong> {{ burger.price }}eur</p>
@@ -68,7 +68,8 @@
                 {% endif %}
                 <form method="post">
                     {% csrf_token %}
-                    <input type="hidden" name="menu_item_id" value="{{ side.id }}">
+                    <input type="hidden" name="item_type" value="menu_item">
+                    <input type="hidden" name="item_id" value="{{ side.id }}">
                     <div class="card-body">
                         <h5 class="card-title">{{ side.name }}</h5>
                         <p class="card-text"><strong>Price:</strong> {{ side.price }}eur</p>
@@ -79,6 +80,36 @@
             </div>
         </div>
     {% endfor %}
+</div>
+
+<h4>Your custom burgers:</h4>
+<div class="row">
+    {% if user_burgers %}
+        {% for burger in user_burgers %}
+            <div class="col-sm-6 col-md-3 d-flex align-items-stretch">
+                <div class="card mb-4 shadow">
+                    {% if burger.image %}
+                        <img class="card-img-top" src="{{ burger.image.url }}" style="object-fit: contain;">
+                    {% else %}
+                        <img class="card-img-top" src="{% static 'img/no-image.png' %}">
+                    {% endif %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="item_type" value="custom_burger">
+                        <input type="hidden" name="item_id" value="{{ burger.id }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ burger.name }}</h5>
+                            <p class="card-text"><strong>Price:</strong> {{ burger.total_price }}eur</p>
+                            <input type="number" name="quantity" value="1" min="1" class="form-control mb-2" style="width: 80px;">
+                            <button type="submit" class="btn btn-primary">Add to Order</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <h4>You dont have custom burgers yet</h4>
+    {% endif %}
 </div>
 
 <h4>Drinks:</h4>
@@ -93,7 +124,8 @@
                 {% endif %}
                 <form method="post">
                     {% csrf_token %}
-                    <input type="hidden" name="menu_item_id" value="{{ drink.id }}">
+                    <input type="hidden" name="item_type" value="menu_item">
+                    <input type="hidden" name="item_id" value="{{ drink.id }}">
                     <div class="card-body">
                         <h5 class="card-title">{{ drink.name }}</h5>
                         <p class="card-text"><strong>Price:</strong> {{ drink.price }}eur</p>
@@ -106,18 +138,20 @@
     {% endfor %}
 </div>
 
-<h4>Your Order</h4>
+<h4>Your Order:</h4>
 <ul class="list-group mb-3">
     {% for item in order_items %}
         <li class="list-group-item d-flex justify-content-between align-items-center">
-            {{ item.menu_item.name }} (x{{ item.quantity }}) - {{ item.menu_item.price|floatformat:2 }}eur each
-            <span>
-                <form method="post" class="d-inline">
+            {% if item.menu_item %}
+                    {{ item.menu_item.name }} x {{ item.quantity }} – {{ item.total_item_price }} EUR
+                {% elif item.custom_burger %}
+                    {{ item.custom_burger.name }} x {{ item.quantity }} – {{ item.total_item_price }} EUR
+                {% endif %}
+                <form method="post" style="display:inline;">
                     {% csrf_token %}
                     <input type="hidden" name="remove_item_id" value="{{ item.id }}">
                     <button type="submit" class="btn btn-danger btn-sm">Remove</button>
                 </form>
-            </span>
         </li>
     {% empty %}
         <li class="list-group-item">Your order is empty.</li>
@@ -129,7 +163,7 @@
        <p><strong>Total:</strong> {{ total_price }} eur</p>
 
     </div>
-    <a href="{% url 'finalize_order' order.id %}" class="btn btn-success">Finalize Order</a>
+    <a href="{% url 'burger_shop:finalize_order' order.id %}" class="btn btn-success">Finalize Order</a>
 {% endif %}
 
 

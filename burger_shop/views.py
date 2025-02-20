@@ -94,7 +94,7 @@ def get_user_profile(request):
 def start_order(request):
     order = Order.objects.create(user=request.user, order_status='d')
 
-    return redirect('order_detail', order_id=order.id)
+    return redirect('burger_shop:order_detail', order_id=order.id)
 
 
 @login_required
@@ -105,45 +105,57 @@ def order_detail(request, order_id):
     sides = MenuItem.objects.filter(category='Sides')
     drinks = MenuItem.objects.filter(category='Drinks')
 
-    menu_items = MenuItem.objects.all()
-
     order_items = order.orderitem_set.all()
+    user_burgers = CustomBurger.objects.filter(user=request.user)
 
-    total_price = sum(item.menu_item.price * item.quantity for item in order_items)
+    for item in order_items:
+        if item.menu_item:
+            item.total_item_price = item.menu_item.price * item.quantity
+        elif item.custom_burger:
+            item.total_item_price = item.custom_burger.total_price * item.quantity
+
+    total_price = sum(item.total_price for item in order_items)
 
     if request.method == 'POST':
         remove_item_id = request.POST.get('remove_item_id')
         if remove_item_id:
             order_item_to_remove = get_object_or_404(OrderItem, id=remove_item_id, order=order)
             order_item_to_remove.delete()
-            return redirect('order_detail', order_id=order.id)
+            return redirect('burger_shop:order_detail', order_id=order.id)
 
-        menu_item_id = request.POST.get('menu_item_id')
+        item_type = request.POST.get('item_type')
+        item_id = request.POST.get('item_id')
         quantity = int(request.POST.get('quantity', 1))
 
-        if menu_item_id and quantity > 0:
-            menu_item = get_object_or_404(MenuItem, id=menu_item_id)
-
-            # Check if item is already in the order, update quantity
-            order_item, created = OrderItem.objects.get_or_create(
-                order=order,
-                menu_item=menu_item,
-                defaults={'quantity': quantity}
-            )
+        if item_id and quantity > 0:
+            if item_type == 'menu_item':
+                menu_item = get_object_or_404(MenuItem, id=item_id)
+                order_item, created = OrderItem.objects.get_or_create(
+                    order=order,
+                    menu_item=menu_item,
+                    defaults={'quantity': quantity}
+                )
+            elif item_type == 'custom_burger':
+                custom_burger = get_object_or_404(CustomBurger, id=item_id)
+                order_item, created = OrderItem.objects.get_or_create(
+                    order=order,
+                    custom_burger=custom_burger,
+                    defaults={'quantity': quantity}
+                )
 
             if not created:
                 order_item.quantity += quantity
                 order_item.save()
 
-        return redirect('order_detail', order_id=order.id)
+        return redirect('burger_shop:order_detail', order_id=order.id)
 
     context = {
         'order': order,
-        'menu_items': menu_items,
         'order_items': order_items,
         'burgers': burgers,
         'sides': sides,
         'drinks': drinks,
+        'user_burgers' : user_burgers,
         'total_price' : total_price,
     }
     return render(request, 'order_detail.html', context)
@@ -159,7 +171,7 @@ def finalize_order(request, order_id):
 
     order_items = order.orderitem_set.all()
 
-    total_price = sum(item.menu_item.price * item.quantity for item in order_items)
+    total_price = sum(item.total_price for item in order_items)
 
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -182,9 +194,9 @@ def finalize_order(request, order_id):
             if order_items.exists():
                 order.order_status = 'co'
                 order.save()
-                return redirect('order_success')
+                return redirect('burger_shop:order_success')
 
-        return redirect('finalize_order', order_id=order.id)
+        return redirect('burger_shop:finalize_order', order_id=order.id)
 
     context = {
         'order': order,

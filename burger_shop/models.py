@@ -92,7 +92,7 @@ class OrderItem(models.Model):
         if self.menu_item:
             return self.menu_item.price * self.quantity
         elif self.custom_burger:
-            return 0
+            return self.custom_burger.total_price * self.quantity
         return 0
 
     def __str__(self):
