@@ -1,12 +1,13 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.shortcuts import HttpResponse
 from django.views.decorators.csrf import csrf_protect
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 
 from .forms import UserUpdateForm, ProfileUpdateForm, CustomBurgerForm, BurgerReviewForm
 from .models import User, MenuItem, Order, OrderItem, CustomBurger, CustomBurgerRecipe, Ingredient, BurgerReview
+from .utils import generate_burger_image
 
 
 def index(request):
@@ -260,20 +261,21 @@ def create_burger(request):
         if not ingredients_data:
             return render(request, 'create_burger.html', {'form': CustomBurgerForm(), 'error': 'Please select ingredients!'})
 
-        # PUTTING INGRIDIENTS ID'S IN LIST
         ingredient_ids = [int(i) for i in ingredients_data.split(',')]
+        top_bun_name = Ingredient.objects.get(id=bun_id).part_image.name
 
-        if bun_id:
-            ingredient_ids.append(int(bun_id))
+        # if bun_id:
+        #     ingredient_ids.append(int(bun_id))
 
-        # CREATING CUSTOM BURGER OBJECT
+        # Save burger without an image to get the ID
         burger = CustomBurger.objects.create(
             user=request.user,
             name=burger_name
         )
 
-        # CREATE CUSTOM BURGER RECEPIE (LINKED TO CUSTOM BURGER)
         ingredient_quantities = {}
+        ingredient_image_paths = []
+
         for ing_id in ingredient_ids:
             if ing_id in ingredient_quantities:
                 ingredient_quantities[ing_id] += 1
@@ -288,7 +290,15 @@ def create_burger(request):
                 quantity=quantity
             )
 
-        return redirect('burger_shop:create_burger')
+            if ingredient.part_image:
+                ingredient_image_paths.extend([ingredient.part_image.name] * quantity)
+
+        if ingredient_image_paths:
+            image_path = generate_burger_image(ingredient_image_paths, burger.id,top_bun_name)
+            burger.image.name = image_path
+            burger.save()
+
+        return redirect('burger_shop:user_burgers')
 
     form = CustomBurgerForm()
     return render(request, 'create_burger.html', {'form': form})
