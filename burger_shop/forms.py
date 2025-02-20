@@ -1,5 +1,5 @@
 from django import forms
-from .models import Profile, User, Ingredient
+from .models import Profile, User, Ingredient, BurgerReview
 
 
 class ProfileUpdateForm(forms.ModelForm):
@@ -11,6 +11,15 @@ class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ('email',)
+
+class BurgerReviewForm(forms.ModelForm):
+    class Meta:
+        model = BurgerReview
+        fields = ('user', 'burger', 'content', 'rating')
+        widgets = {
+            'burger': forms.HiddenInput(),
+            'user': forms.HiddenInput()
+        }
 
 
 class CustomBurgerForm(forms.Form):

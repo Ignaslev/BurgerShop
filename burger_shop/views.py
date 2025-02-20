@@ -5,8 +5,8 @@ from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 
-from .forms import UserUpdateForm, ProfileUpdateForm, CustomBurgerForm
-from .models import User, MenuItem, Order, OrderItem, CustomBurger, CustomBurgerRecipe, Ingredient
+from .forms import UserUpdateForm, ProfileUpdateForm, CustomBurgerForm, BurgerReviewForm
+from .models import User, MenuItem, Order, OrderItem, CustomBurger, CustomBurgerRecipe, Ingredient, BurgerReview
 
 
 def index(request):
@@ -201,6 +201,41 @@ def order_success(request):
 def user_orders(request):
     orders = Order.objects.filter(user=request.user).prefetch_related('orderitem_set__menu_item', 'orderitem_set__custom_burger').order_by('-time')
     return render(request, 'user_orders.html', {'orders': orders})
+
+@login_required
+def user_burgers(request):
+    burgers = CustomBurger.objects.filter(user=request.user)
+    return render(request, 'user_burgers.html',{'burgers':burgers})
+
+
+@login_required
+def get_user_burger(request, burger_id):
+    burger = get_object_or_404(CustomBurger, pk=burger_id)
+    recipe_items = burger.customburgerrecipe_set.all()
+
+    if request.method == 'POST':
+        form = BurgerReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.burger = burger
+            review.user = request.user
+            review.save()
+            return redirect('burger_shop:user_burger', burger_id=burger_id)
+
+    else:
+        form = BurgerReviewForm(initial={'burger': burger, 'user': request.user})
+
+
+    reviews = BurgerReview.objects.filter(burger=burger)
+
+    context = {
+        'burger': burger,
+        'recipe_items':recipe_items,
+        'form':form,
+        'reviews':reviews
+
+    }
+    return render(request, 'custom_burger.html', context)
 
 
 @login_required

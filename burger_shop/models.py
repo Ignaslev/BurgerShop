@@ -114,7 +114,8 @@ class CustomBurger(models.Model):
 
     @property
     def total_price(self):
-        pass
+        recipe_items = self.customburgerrecipe_set.all()
+        return sum(item.price for item in recipe_items)
 
     def __str__(self):
         return f'{self.name}'
@@ -149,7 +150,9 @@ class CustomBurgerRecipe(models.Model):
 
     @property
     def price(self):
-        pass
+        if self.ingredient and self.quantity:
+            return self.ingredient.price * self.quantity
+        return 0
 
 
 class BlogPost(models.Model):
@@ -159,3 +162,13 @@ class BlogPost(models.Model):
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+
+class BurgerReview(models.Model):
+    date = models.DateTimeField(auto_now_add=True)
+    content = models.TextField('Content', max_length=2000)
+    burger = models.ForeignKey(CustomBurger, on_delete=models.CASCADE, blank=True)
+    rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.date}, {self.user}, {self.burger}, {self.rating}/5, {self.content}'

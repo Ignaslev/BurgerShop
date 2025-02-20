@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Profile, Order, MenuItem, OrderItem, CustomBurger, Ingredient, CustomBurgerRecipe, BlogPost
+from .models import Profile, Order, MenuItem, OrderItem, CustomBurger, Ingredient, CustomBurgerRecipe, BlogPost, BurgerReview
 
 
 class CustomBurgerRecipeInline(admin.TabularInline):
@@ -35,3 +35,4 @@ admin.site.register(MenuItem, MenuItemAdmin)
 admin.site.register(CustomBurger,CustomBurgerAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(BlogPost)
+admin.site.register(BurgerReview)

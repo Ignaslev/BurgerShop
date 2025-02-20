@@ -35,6 +35,7 @@
         <li class="nav-item"><a class="nav-link" href="{% url 'burger_shop:homepage' %}">Home</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'burger_shop:menu' %}">Our menu</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'burger_shop:start_order' %}">Start Order</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'burger_shop:create_burger' %}">Create burger</a></li>
 
         {# USER MENU #}
         {% if user.is_authenticated %}
@@ -46,6 +47,7 @@
             <ul class="dropdown-menu" aria-labelledby="userDropdown">
                 <li><a class="dropdown-item" href="{% url 'burger_shop:user-profile' %}">My Profile</a></li>
                 <li><a class="dropdown-item" href="{% url 'burger_shop:user_orders' %}">My Orders</a></li>
+                <li><a class="dropdown-item" href="{% url 'burger_shop:user_burgers' %}">My Burgers</a></li>
                 <li><a class="dropdown-item" href="/accounts/logout/">Log out</a></li>
             </ul>
           </li>

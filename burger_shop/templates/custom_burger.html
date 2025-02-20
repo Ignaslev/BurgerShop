@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+{% if burger.image %}
+    <img class="card-img-top" src="{{ burger.image.url }}" style="object-fit: contain; max-width: 200px" >
+{% else %}
+    <img class="card-img-top" src="{% static 'img/no-image.png' %}" style="object-fit: contain; max-width: 250px" >
+{% endif %}
+<h1>{{ burger.name }}</h1>
+<h4>{{ burger.total_price}}eur</h4>
+{% for item in recipe_items %}
+    <p>{{ item.ingredient }} x {{ item.quantity }}, <strong>Total:</strong> {{ item.price }}eur</p>
+{% endfor %}
+
+<h4>Reviews:</h4>
+    {% for review in reviews %}
+    <small><b>{{ review.user }}</b> <em>{{ review.date }}</em></small>
+    <p class="bg-light">{{ review.content }}</p>
+    <p>Rating: {{ review.rating }}</p>
+    <hr/>
+    {% endfor %}
+    {% if not reviews.first %}
+    <p>No reviews yet</p>
+    <hr/>
+    {% endif %}
+    <div>
+    {% if user.is_authenticated %}
+    <h5>Write a review:</h5>
+    <form method="post">
+        {% csrf_token %}
+        <div>
+        {{ form.content }}
+        </div>
+        <div>
+           Rate it: {{ form.rating }}
+        </div>
+        <div>
+            <input type="submit" class="btn btn-outline-success btn-sm" value="Submit"/>
+        </div>
+    </form>
+    {% else %}
+    <p class="text-danger">Please login to leave a review</p>
+    </div>
+    {% endif %}
+{% endblock %}
