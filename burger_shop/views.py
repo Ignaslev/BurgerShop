@@ -234,7 +234,6 @@ def user_burgers(request):
     return render(request, 'user_burgers.html',{'burgers':burgers})
 
 
-
 def get_user_burger(request, burger_id):
     burger = get_object_or_404(CustomBurger, pk=burger_id)
     recipe_items = burger.customburgerrecipe_set.all()
@@ -266,6 +265,9 @@ def get_user_burger(request, burger_id):
 
 @login_required
 def create_burger(request):
+    buns = Ingredient.objects.filter(category='Bun').all()
+    ingredients = Ingredient.objects.exclude(category='Bun')
+
     if request.method == 'POST':
         burger_name = request.POST.get('name')
         bun_id = request.POST.get('bun_id')
@@ -314,7 +316,7 @@ def create_burger(request):
         return redirect('burger_shop:create_burger_success')
 
     form = CustomBurgerForm()
-    return render(request, 'create_burger.html', {'form': form})
+    return render(request, 'create_burger.html', {'form': form, 'buns': buns, 'ingredients': ingredients})
 
 
 @login_required

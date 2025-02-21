@@ -7,23 +7,43 @@
     {% csrf_token %}
     <p>{{ form.name.label }}: {{ form.name }}</p>
 
-    <p>{{ form.bun.label }}:</p>
-    {{ form.bun }}
-
-    <p>Choose Your Ingredients:</p>
-    <div id="ingredientList">
-        {% for ingredient in form.fields.ingredients.queryset %}
-            <div>
-                <span>{{ ingredient.name }}</span>
-                <button type="button" class="add-ingredient" data-id="{{ ingredient.id }}" data-name="{{ ingredient.name }}">
-                    Add
-                </button>
+    <h5>Choose Your Bun:</h5>
+    <div class="row">
+        {% for bun in buns %}
+            <div class="col-sm-6 col-md-3 d-flex align-items-stretch">
+                <div class="card mb-4 shadow">
+                    <img class="card-img-top" src="{{ bun.part_image.url }}" style="object-fit: contain;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ bun.name }}</h5>
+                        <p class="card-text"><strong>Price:</strong> {{ bun.price }} eur</p>
+                        <input type="radio" name="bun" value="{{ bun.id }}" class="select-bun" data-name="{{ bun.name }}" data-price="{{ bun.price }}">Select
+                    </div>
+                </div>
             </div>
         {% endfor %}
     </div>
 
+    <h4>Select Ingredients</h4>
+    <div class="row">
+
+            {% for ingredient in ingredients %}
+            <div class="col-md-2 d-flex">
+                <div class="card m-2 p-2 w-100 d-flex flex-column justify-content-between" style="width: 150px; text-align: center;">
+                    <img src="{{ ingredient.part_image.url }}" class="card-img-top mx-auto" alt="{{ ingredient.name }}" style="object-fit: contain; max-height: 100px;">
+                    <div class="card-body d-flex flex-column align-items-center">
+                        <p class="mb-1" style="height: 40px; display: flex; align-items: center; justify-content: center;">{{ ingredient.name }}</p>
+                        <p class="mb-2">{{ ingredient.price }}eur</p>
+                        <input type="number" id="qty_{{ ingredient.id }}" value="1" min="1" class="form-control mb-2">
+                        <button type="button" class="btn btn-primary" onclick="addIngredient({{ ingredient.id }}, '{{ ingredient.name }}', {{ ingredient.price }})">Add</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+    </div>
     <h5>Added Ingredients:</h5>
-    <ul id="addedIngredientsList"></ul>
+    <ul id="selectedIngredients" class="list-group mb-3"></ul>
+    <p id="totalPrice"><strong>Total Price: 0.00eur</strong></p>
 
     <input type="hidden" name="bun_id" id="bunIdInput">
     <input type="hidden" name="ingredients" id="ingredientsInput">
@@ -31,93 +51,99 @@
 </form>
 
 <script>
-    // Store added ingredients as {id: {name: ..., quantity: ...}}
-    const addedIngredients = {};
+    let selectedIngredients = {};
+    let selectedBun = null;
 
-    // Find all "Add" buttons
-    const addButtons = document.querySelectorAll('.add-ingredient');
-
-    // Get the preview list UL
-    const addedIngredientsList = document.getElementById('addedIngredientsList');
-
-    // Add event listeners to every button
-    addButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const ingredientId = this.dataset.id; // Get ingredient ID
-            const ingredientName = this.dataset.name; // Get ingredient Name
-
-            // If ingredient already in list -> Increase quantity
-            if (addedIngredients[ingredientId]) {
-                addedIngredients[ingredientId].quantity += 1;
-            } else {
-                // If not -> Add to list with quantity 1
-                addedIngredients[ingredientId] = {
-                    name: ingredientName,
-                    quantity: 1
+    document.addEventListener('DOMContentLoaded', function () {
+        let bunRadios = document.querySelectorAll('.select-bun');
+        bunRadios.forEach(radio => {
+            radio.addEventListener('change', function () {
+                selectedBun = {
+                    id: this.value,
+                    name: this.closest('.card').querySelector('.card-title').innerText,
+                    price: parseFloat(this.dataset.price) || 0
                 };
+                document.getElementById('bunIdInput').value = this.value;
+                updatePreview();
+            });
+        });
+
+
+     // Prevent form submission if no bun is selected
+        document.getElementById('burgerForm').addEventListener('submit', function (event) {
+            if (!selectedBun) {
+                event.preventDefault(); // Stop form submission
+                alert('Please select a bun before submitting!');
             }
-
-            // Update the preview display
-            updateIngredientsPreview();
         });
     });
 
-    // Update the list visually
-    function updateIngredientsPreview() {
-        // Clear existing list
-        addedIngredientsList.innerHTML = '';
+    function addIngredient(id, name, price) {
+        price = parseFloat(price);  // Ensure price is a number
+        if (isNaN(price)) return;  // Prevent adding invalid prices
 
-        // Display chosen bun first
-        if (chosenBun) {
-            const bunItem = document.createElement('li');
-            bunItem.textContent = `Bun: ${chosenBun.name}`;
-            addedIngredientsList.appendChild(bunItem);
-    }
+        let qtyInput = document.getElementById(`qty_${id}`);
+        let quantity = parseInt(qtyInput.value) || 1;
 
-        // Loop over addedIngredients and display
-        for (const id in addedIngredients) {
-            const ingredient = addedIngredients[id];
-            const listItem = document.createElement('li');
-            listItem.textContent = `${ingredient.name} x ${ingredient.quantity}`;
-            addedIngredientsList.appendChild(listItem);
+        if (selectedIngredients[id]) {
+            selectedIngredients[id].quantity += quantity;
+        } else {
+            selectedIngredients[id] = { name: name, price: price, quantity: quantity };
         }
+        updatePreview();
     }
 
-    // Store chosen bun separately
-    let chosenBun = null;
-
-    // Find the bun radio buttons
-    const bunRadios = document.querySelectorAll('input[name="bun"]');
-
-    // Add listener to update chosenBun when user selects a bun
-    bunRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            const bunId = this.value;
-            const bunName = this.nextSibling.textContent.trim();
-
-            chosenBun = { id: bunId, name: bunName };
-
-            updateIngredientsPreview();
-        });
-    });
-
-    document.getElementById('burgerForm').addEventListener('submit', function (e) {
-    // 1. Get selected bun ID
-    const selectedBunId = document.querySelector('input[name="bun"]:checked').value;
-
-    // 2. Get ingredient IDs
-    const ingredientIds = [];
-    for (const id in addedIngredients) {
-        for (let i = 0; i < addedIngredients[id].quantity; i++) {
-            ingredientIds.push(id);
+    function removeIngredient(id) {
+        if (selectedIngredients[id]) {
+            delete selectedIngredients[id];
         }
+        updatePreview();
     }
 
-    // 3. Set hidden inputs
-    document.getElementById('bunIdInput').value = selectedBunId;
-    document.getElementById('ingredientsInput').value = ingredientIds.join(',');
+    function updatePreview() {
+        let previewList = document.getElementById('selectedIngredients');
+        let ingredientsInput = document.getElementById('ingredientsInput');
+        let totalPriceDisplay = document.getElementById('totalPrice');
 
-});
+        previewList.innerHTML = ''; // Clear list before re-rendering
+        let ingredientData = [];
+        let totalPrice = 0;
+
+        // Add selected bun to preview
+        if (selectedBun) {
+            let bunTotal = selectedBun.price;
+            totalPrice += bunTotal;
+            let bunItem = document.createElement('li');
+            bunItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+            bunItem.innerHTML = `<strong>${selectedBun.name} (Bun) - ${selectedBun.price.toFixed(2)}eur</strong>`;
+            previewList.appendChild(bunItem);
+        }
+
+        // Add selected ingredients to preview
+        for (let id in selectedIngredients) {
+            let ingredient = selectedIngredients[id];
+            let totalIngredientPrice = ingredient.price * ingredient.quantity;
+            totalPrice += totalIngredientPrice;
+
+            let listItem = document.createElement('li');
+            listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+            listItem.innerHTML = `${ingredient.name} - ${ingredient.price.toFixed(2)}eur x ${ingredient.quantity} = <strong>${totalIngredientPrice.toFixed(2)}eur</strong>
+                <button class="btn btn-danger btn-sm" onclick="removeIngredient(${id})">Remove</button>`;
+            previewList.appendChild(listItem);
+
+            for (let i = 0; i < ingredient.quantity; i++) {
+                ingredientData.push(id);
+            }
+        }
+
+        // Update hidden input and total price
+        ingredientsInput.value = ingredientData.join(',');
+        totalPriceDisplay.innerHTML = `<strong>Total Price: ${totalPrice.toFixed(2)}eur</strong>`;
+    }
 </script>
+
+
+
+
 
 {% endblock %}
