@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from django.db.models import Avg
 
 
 class Profile(models.Model):
@@ -117,6 +117,11 @@ class CustomBurger(models.Model):
         recipe_items = self.customburgerrecipe_set.all()
         return sum(item.price for item in recipe_items)
 
+    @property
+    def average_rating(self):
+        avg_rating = self.burgerreview_set.aggregate(Avg('rating'))['rating__avg']
+        return range(round(avg_rating)) if avg_rating else 0
+
     def __str__(self):
         return f'{self.name}'
 
@@ -167,7 +172,7 @@ class BurgerReview(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     content = models.TextField('Content', max_length=2000)
     burger = models.ForeignKey(CustomBurger, on_delete=models.CASCADE, blank=True)
-    rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
+    rating = models.IntegerField(choices=[(i, i) for i in range(1, 5)])
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):

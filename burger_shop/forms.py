@@ -18,7 +18,8 @@ class BurgerReviewForm(forms.ModelForm):
         fields = ('user', 'burger', 'content', 'rating')
         widgets = {
             'burger': forms.HiddenInput(),
-            'user': forms.HiddenInput()
+            'user': forms.HiddenInput(),
+
         }
 
 

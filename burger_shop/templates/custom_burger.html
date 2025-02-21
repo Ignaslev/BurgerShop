@@ -9,6 +9,13 @@
 {% endif %}
 <h1>{{ burger.name }}</h1>
 <h4>{{ burger.total_price}}eur</h4>
+<h4>Rating:</h4>
+<span class="review-stars">
+            {% for _ in burger.average_rating|default:0 %}
+                ⭐
+            {% endfor %}
+        </span>
+<h4>Recepie:</h4>
 {% for item in recipe_items %}
     <p>{{ item.ingredient }} x {{ item.quantity }}, <strong>Total:</strong> {{ item.price }}eur</p>
 {% endfor %}
@@ -17,7 +24,14 @@
     {% for review in reviews %}
     <small><b>{{ review.user }}</b> <em>{{ review.date }}</em></small>
     <p class="bg-light">{{ review.content }}</p>
-    <p>Rating: {{ review.rating }}</p>
+    <p>
+        Rating:
+        <span class="review-stars">
+            {% for _ in review.rating|default:0|rjust:review.rating %}
+                ⭐
+            {% endfor %}
+        </span>
+    </p>
     <hr/>
     {% endfor %}
     {% if not reviews.first %}
@@ -25,22 +39,73 @@
     <hr/>
     {% endif %}
     <div>
-    {% if user.is_authenticated %}
-    <h5>Write a review:</h5>
-    <form method="post">
-        {% csrf_token %}
-        <div>
-        {{ form.content }}
-        </div>
-        <div>
-           Rate it: {{ form.rating }}
-        </div>
-        <div>
-            <input type="submit" class="btn btn-outline-success btn-sm" value="Submit"/>
-        </div>
-    </form>
-    {% else %}
-    <p class="text-danger">Please login to leave a review</p>
+        {% if user.is_authenticated %}
+            {% if form %}
+                <h5>Write a review:</h5>
+                <form method="post">
+                    {% csrf_token %}
+                    <div>
+                        {{ form.content }}
+                    </div>
+                    <h5>Rate it:</h5>
+                    <div class="rating">
+                        {% for value, label in form.rating.field.choices %}
+                            <input type="radio" class="star-radio" name="rating" id="rating{{ value }}" value="{{ value }}">
+                            <label for="rating{{ value }}" class="star" data-value="{{ value }}"></label>
+                        {% endfor %}
+                    </div>
+
+                    <div>
+                        <input type="submit" class="btn btn-outline-success btn-sm" value="Submit"/>
+                    </div>
+                </form>
+            {% else %}
+                <h3>you already left a review, thank you <3</h3>
+            {% endif %}
+        {% else %}
+            <p class="text-danger">Please login to leave a review</p>
+        {% endif %}
     </div>
-    {% endif %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const stars = document.querySelectorAll(".star");
+    const radios = document.querySelectorAll(".star-radio");
+
+    stars.forEach(star => {
+        star.addEventListener("mouseenter", function () {
+            let value = this.getAttribute("data-value");
+            highlightStars(value);
+        });
+
+        star.addEventListener("click", function () {
+            let value = this.getAttribute("data-value");
+            document.getElementById(`rating${value}`).checked = true;
+            resetStars();  // Keep selection visible
+        });
+
+        star.addEventListener("mouseleave", function () {
+            resetStars();
+        });
+    });
+
+    function highlightStars(value) {
+        stars.forEach(star => {
+            if (star.getAttribute("data-value") <= value) {
+                star.style.color = "gold";
+            } else {
+                star.style.color = "#ccc";
+            }
+        });
+    }
+
+    function resetStars() {
+        let checkedValue = document.querySelector(".star-radio:checked")?.value || 0;
+        highlightStars(checkedValue);
+    }
+
+    resetStars(); // Ensure correct state on page load
+});
+
+</script>
 {% endblock %}

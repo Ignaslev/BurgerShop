@@ -3,7 +3,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
-from django.conf import settings
+
 
 from .forms import UserUpdateForm, ProfileUpdateForm, CustomBurgerForm, BurgerReviewForm
 from .models import User, MenuItem, Order, OrderItem, CustomBurger, CustomBurgerRecipe, Ingredient, BurgerReview
@@ -129,32 +129,44 @@ def order_detail(request, order_id):
     total_price = sum(item.total_price for item in order_items)
 
     if request.method == 'POST':
+
+        # IF USER PRESES REMOVE, ITEM ID IS PASSED AND ITEM GETS REMOVED FROM ORDER
         remove_item_id = request.POST.get('remove_item_id')
         if remove_item_id:
+            # FIND ITEM ID IN ORDER TO REMOVE
             order_item_to_remove = get_object_or_404(OrderItem, id=remove_item_id, order=order)
+            # DELETS ITEM
             order_item_to_remove.delete()
             return redirect('burger_shop:order_detail', order_id=order.id)
 
+        #ADDING ITEM TO ORDER, EXTRACTING ITEM DETAILS
         item_type = request.POST.get('item_type')
         item_id = request.POST.get('item_id')
         quantity = int(request.POST.get('quantity', 1))
 
         if item_id and quantity > 0:
+            # ADDING ITEMS TO ORDER OF TYPE 'MENU_ITEM'
             if item_type == 'menu_item':
+                # GET ITEM ID
                 menu_item = get_object_or_404(MenuItem, id=item_id)
+                # CHECKS IF ITEM ALREADY IN ORDER, CREATES ITEM IF NOT
                 order_item, created = OrderItem.objects.get_or_create(
                     order=order,
                     menu_item=menu_item,
                     defaults={'quantity': quantity}
                 )
+            # ADDING CUSTOM BURGERS TO MENU
             elif item_type == 'custom_burger':
+                # GET ID
                 custom_burger = get_object_or_404(CustomBurger, id=item_id)
+                # CHECKS IF BURGER ALREADY IN ORDER, CREATES IF NOT
                 order_item, created = OrderItem.objects.get_or_create(
                     order=order,
                     custom_burger=custom_burger,
                     defaults={'quantity': quantity}
                 )
 
+            # IF ITEM ALREADY IN ORDER, UPDATES QUANTITY IF ADDED AGAIN
             if not created:
                 order_item.quantity += quantity
                 order_item.save()
@@ -231,6 +243,7 @@ def user_orders(request):
 @login_required
 def user_burgers(request):
     burgers = CustomBurger.objects.filter(user=request.user)
+
     return render(request, 'user_burgers.html',{'burgers':burgers})
 
 
@@ -238,17 +251,21 @@ def get_user_burger(request, burger_id):
     burger = get_object_or_404(CustomBurger, pk=burger_id)
     recipe_items = burger.customburgerrecipe_set.all()
 
-    if request.method == 'POST':
-        form = BurgerReviewForm(request.POST)
-        if form.is_valid():
-            review = form.save(commit=False)
-            review.burger = burger
-            review.user = request.user
-            review.save()
-            return redirect('burger_shop:user_burger', burger_id=burger_id)
+    user_review = BurgerReview.objects.filter(user=request.user, burger=burger).first()
 
-    else:
-        form = BurgerReviewForm(initial={'burger': burger, 'user': request.user})
+    form = None
+    if not user_review:
+        if request.method == 'POST':
+            form = BurgerReviewForm(request.POST)
+            if form.is_valid():
+                review = form.save(commit=False)
+                review.burger = burger
+                review.user = request.user
+                review.save()
+                return redirect('burger_shop:user_burger', burger_id=burger_id)
+
+        else:
+            form = BurgerReviewForm(initial={'burger': burger, 'user': request.user})
 
 
     reviews = BurgerReview.objects.filter(burger=burger)
@@ -265,38 +282,44 @@ def get_user_burger(request, burger_id):
 
 @login_required
 def create_burger(request):
+    # PULL OUT BUNS AND INGREDIENTS TO DISPLAY
     buns = Ingredient.objects.filter(category='Bun').all()
     ingredients = Ingredient.objects.exclude(category='Bun')
 
     if request.method == 'POST':
+        # PULL OUT CREATED BURGER DATA
         burger_name = request.POST.get('name')
         bun_id = request.POST.get('bun_id')
         ingredients_data = request.POST.get('ingredients')
 
+        # IF NO INGREDIENTS REDIRECT BACK WITH ERROR MESSAGE
         if not ingredients_data:
             return render(request, 'create_burger.html', {'form': CustomBurgerForm(), 'error': 'Please select ingredients!'})
 
+        # FROM STRING OF INGREDIENTS IDS MAKING LIST OF NUMBERS
         ingredient_ids = [int(i) for i in ingredients_data.split(',')]
+        # GETTING TOP BUN NAME (FOR IMAGE GENERATOR
         top_bun_name = Ingredient.objects.get(id=bun_id).part_image.name
 
-        # if bun_id:
-        #     ingredient_ids.append(int(bun_id))
 
-        # Save burger without an image to get the ID
+        # CREATE BURGER
         burger = CustomBurger.objects.create(
             user=request.user,
             name=burger_name
         )
 
+        # ADD QUANTITIES OF INGREDIENTS AND ASSIGN INGREDIENT IMAGE PATH FOR IMAGE GENERATOR
         ingredient_quantities = {}
         ingredient_image_paths = []
 
+        # UPDATING INGREDIENT QUANTITIES, IF ADDED FIRST TIME DEFAULT IS ONE, IF ADDED AGAIN ADDS QUANTITY
         for ing_id in ingredient_ids:
             if ing_id in ingredient_quantities:
                 ingredient_quantities[ing_id] += 1
             else:
                 ingredient_quantities[ing_id] = 1
 
+        # CREATING CUSTOM BURGER RECEPIE (TO MODEL DATABASE)
         for ing_id, quantity in ingredient_quantities.items():
             ingredient = Ingredient.objects.get(id=ing_id)
             CustomBurgerRecipe.objects.create(
@@ -305,9 +328,11 @@ def create_burger(request):
                 quantity=quantity
             )
 
+            # IF INGRIDIENT HAS QAUNTITY MORE THAN ONE WE REPEAT IMAGE PATH AS MANY TIMES AS QUANTITY (FOR IMAGE GENERATOR)
             if ingredient.part_image:
                 ingredient_image_paths.extend([ingredient.part_image.name] * quantity)
 
+        # CREATES COMPLETED BURGER IMAGE WITH FUNCTION IN UTILS.PY
         if ingredient_image_paths:
             image_path = generate_burger_image(ingredient_image_paths, burger.id,top_bun_name)
             burger.image.name = image_path

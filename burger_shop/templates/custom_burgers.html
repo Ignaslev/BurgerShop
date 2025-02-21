@@ -17,6 +17,15 @@
                         <a href="{% url 'burger_shop:user_burger' burger.id %}"><h5 class="card-title">{{ burger.name }}</h5></a>
                         <p class="card-text"><strong>Price:</strong> {{ burger.total_price }}eur</p>
                         <p class="card-text"><strong>User:</strong> {{ burger.user }}</p>
+                        <p>Rating: <span class="review-stars">
+                            {% if burger.average_rating %}
+                                {% for _ in burger.average_rating %}
+                                 ⭐
+                                {% endfor %}
+                            {% else %}
+                            No rating yet
+                            {% endif %}
+                        </span></p>
 
                     </div>
                 </div>
