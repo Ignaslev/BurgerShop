@@ -14,8 +14,9 @@ urlpatterns = [
     path('order/success/', views.order_success, name='order_success'),
     path('my-orders/', views.user_orders, name='user_orders'),
     path('create-burger/', views.create_burger, name='create_burger'),
+    path('create-burger/success', views.create_burger_success, name='create_burger_success'),
     path('my-burgers/',views.user_burgers,name='user_burgers'),
-
     path('my-burgers/<int:burger_id>', views.get_user_burger, name='user_burger'),
+    path('custom-burgers/', views.all_custom_burgers, name='custom_burgers'),
 
 ]

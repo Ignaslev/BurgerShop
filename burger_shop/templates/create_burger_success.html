@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Burger was created sucessfully!</h1>
+<a href="{% url 'burger_shop:user_burgers' %}" class="btn btn-success">All your burgers</a>
+<a href="{% url 'burger_shop:start_order' %}" class="btn btn-success">Start order</a>
+
+
+
+{% endblock %}

@@ -23,7 +23,18 @@ def menu(request):
         'sides' : sides,
         'drinks' : drinks,
     }
+
     return render(request, 'menu.html', context=context)
+
+def all_custom_burgers(request):
+    custom_burgers = CustomBurger.objects.all()
+
+    context = {
+        'custom_burgers':custom_burgers
+    }
+
+    return render(request, 'custom_burgers.html', context=context)
+
 
 @csrf_protect
 def register_user(request):
@@ -206,6 +217,7 @@ def finalize_order(request, order_id):
     }
     return render(request, 'finalize_order.html', context)
 
+@login_required
 def order_success(request):
     return render(request, 'order_success.html')
 
@@ -215,13 +227,14 @@ def user_orders(request):
     orders = Order.objects.filter(user=request.user).prefetch_related('orderitem_set__menu_item', 'orderitem_set__custom_burger').order_by('-time')
     return render(request, 'user_orders.html', {'orders': orders})
 
+
 @login_required
 def user_burgers(request):
     burgers = CustomBurger.objects.filter(user=request.user)
     return render(request, 'user_burgers.html',{'burgers':burgers})
 
 
-@login_required
+
 def get_user_burger(request, burger_id):
     burger = get_object_or_404(CustomBurger, pk=burger_id)
     recipe_items = burger.customburgerrecipe_set.all()
@@ -298,7 +311,12 @@ def create_burger(request):
             burger.image.name = image_path
             burger.save()
 
-        return redirect('burger_shop:user_burgers')
+        return redirect('burger_shop:create_burger_success')
 
     form = CustomBurgerForm()
     return render(request, 'create_burger.html', {'form': form})
+
+
+@login_required
+def create_burger_success(request):
+    return render(request, 'create_burger_success.html')

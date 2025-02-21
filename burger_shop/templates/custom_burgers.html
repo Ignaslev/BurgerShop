@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Users created custom burgers:</h1>
+
+<div class="row">
+    {% for burger in custom_burgers %}
+    <div class="col-sm-6 col-md-3 d-flex align-items-stretch">
+                <div class="card mb-4 shadow">
+                    {% if burger.image %}
+                        <img class="card-img-top" src="{{ burger.image.url }}" style="object-fit: contain;">
+                    {% else %}
+                        <img class="card-img-top" src="{% static 'img/no-image.png' %}">
+                    {% endif %}
+                    <div class="card-body">
+                        <a href="{% url 'burger_shop:user_burger' burger.id %}"><h5 class="card-title">{{ burger.name }}</h5></a>
+                        <p class="card-text"><strong>Price:</strong> {{ burger.total_price }}eur</p>
+                        <p class="card-text"><strong>User:</strong> {{ burger.user }}</p>
+
+                    </div>
+                </div>
+    </div>
+    {% endfor %}
+</div>
+
+
+
+
+{% endblock %}
