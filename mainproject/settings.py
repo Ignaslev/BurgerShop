@@ -34,6 +34,8 @@ INSTALLED_APPS = [
     'burger_shop.apps.BurgerShopConfig',
     'crispy_forms',
     'crispy_bootstrap4',
+    'tinymce',
+    'filebrowser',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -140,3 +142,14 @@ EMAIL_HOST_PASSWORD = EMAIL_PASSWORD
 DEFAULT_FROM_EMAIL = EMAIL
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+TINYMCE_DEFAULT_CONFIG = {
+    'width' : 900,
+    'plugins': 'image media link code',
+    'toolbar': 'undo redo | bold italic | link image | code',
+
+    'image_uploadtab': True,  # Enables the image upload tab
+    'file_browser_callback': 'djangoFileBrowser',  # For file browsing if needed
+    'valid_elements': '*[*]',  # Allows all HTML tags
+    'extended_valid_elements': 'iframe[src|width|height|frameborder|allowfullscreen]',
+}

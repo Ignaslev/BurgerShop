@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Avg
+from tinymce.models import HTMLField
 
 
 class Profile(models.Model):
@@ -162,10 +163,11 @@ class CustomBurgerRecipe(models.Model):
 
 class BlogPost(models.Model):
     title = models.CharField(max_length=200)
-    content = models.TextField()
+    content = HTMLField()
     image = models.ImageField(upload_to='blog_images/', blank=True, null=True)
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    content_image = models.ImageField(upload_to='blog_images/', blank=True, null=True)
 
 
 class BurgerReview(models.Model):

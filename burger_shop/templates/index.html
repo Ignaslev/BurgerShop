@@ -2,5 +2,32 @@
 
 {% block content %}
 
-<h1>Heres going to be homepage</h1>
+<h1>Welcome!</h1>
+<h4>Blog Posts</h4>
+
+
+    <ul class="list-group">
+        {% for post in blog_posts %}
+        <li class="list-group-item" style="margin-top: 10px; margin-bottom: 10px; max-height: 250px; overflow: hidden;">
+        <div class="row">
+            <div class="col-md-4" >
+                <img src="{{ post.image.url }}" alt="{{ post.title }}" class="img-fluid rounded" style="max-height: 230px; object-fit: cover; padding-bottom: 10px">
+            </div>
+            <div class="col-md-8 d-flex flex-column justify-content-between" style="padding-bottom: 20px;">
+                <div style="overflow: hidden;">
+                    <h4>{{ post.title }}</h4>
+                    <p><small>By {{ post.author }} | {{ post.created_at|date:"F d, Y" }}</small></p>
+                    <p>{{ post.content|truncatewords:3|safe }}</p>
+                </div>
+                <a href="{% url 'burger_shop:blog_post' post.id %}" class="btn btn-primary btn-sm" style="max-width: 150px;">Read More</a>
+            </div>
+        </div>
+    </li>
+        {% endfor %}
+    </ul>
+
+
+
+
+
 {% endblock %}

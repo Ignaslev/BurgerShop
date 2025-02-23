@@ -11,9 +11,13 @@
 <h4>{{ burger.total_price}}eur</h4>
 <h4>Rating:</h4>
 <span class="review-stars">
-            {% for _ in burger.average_rating|default:0 %}
+            {% if burger.average_rating %}
+            {% for _ in burger.average_rating %}
                 ⭐
             {% endfor %}
+            {% else %}
+            No rating yet
+            {% endif %}
         </span>
 <h4>Recepie:</h4>
 {% for item in recipe_items %}

@@ -6,12 +6,23 @@ from django.contrib.auth.decorators import login_required
 
 
 from .forms import UserUpdateForm, ProfileUpdateForm, CustomBurgerForm, BurgerReviewForm
-from .models import User, MenuItem, Order, OrderItem, CustomBurger, CustomBurgerRecipe, Ingredient, BurgerReview
+from .models import User, MenuItem, Order, OrderItem, CustomBurger, CustomBurgerRecipe, Ingredient, BurgerReview, BlogPost
 from .utils import generate_burger_image
 
 
 def index(request):
-    return render(request, 'index.html')
+    blog_posts = BlogPost.objects.all().order_by('-created_at')
+
+    context = {
+        'blog_posts':blog_posts
+    }
+    return render(request, 'index.html', context=context)
+
+
+def blog_post(request, pk):
+    post = get_object_or_404(BlogPost, pk=pk)
+    return render(request, 'blog_post.html', {'post': post})
+
 
 def menu(request):
     burgers = MenuItem.objects.filter(category='Burgers').all()
@@ -251,10 +262,11 @@ def get_user_burger(request, burger_id):
     burger = get_object_or_404(CustomBurger, pk=burger_id)
     recipe_items = burger.customburgerrecipe_set.all()
 
-    user_review = BurgerReview.objects.filter(user=request.user, burger=burger).first()
+    if request.user.is_authenticated:
+        user_review = BurgerReview.objects.filter(user=request.user, burger=burger).first()
 
     form = None
-    if not user_review:
+    if request.user.is_authenticated and not user_review:
         if request.method == 'POST':
             form = BurgerReviewForm(request.POST)
             if form.is_valid():
