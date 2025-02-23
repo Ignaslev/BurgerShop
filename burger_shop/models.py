@@ -39,20 +39,6 @@ class Order(models.Model):
                                 default='d',
                                 help_text='Status of order')
 
-    PAYMENT_STATUS = (
-        ('p', 'Pending'),
-        ('pd', 'Paid'),
-        ('f', 'Failed'),
-        ('ca', 'Cancelled')
-    )
-
-    payment_status = models.CharField('Payment status',
-                                    max_length=2,
-                                    choices=PAYMENT_STATUS,
-                                    default='p',
-                                    help_text='Status of payment')
-
-
     @property
     def total_price(self):
         return sum(item.total_price for item in self.orderitem_set.all())
