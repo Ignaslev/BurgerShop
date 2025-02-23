@@ -64,15 +64,15 @@ def register_user(request):
 
         if password != password2:
             messages.error(request, "Passwords doesn't match")
-            return redirect('register')
+            return redirect('burger_shop:register')
 
         if User.objects.filter(username=username).exists():
             messages.error(request, 'User already exists')
-            return redirect('register')
+            return redirect('burger_shop:register')
 
         if User.objects.filter(email=email).exists():
             messages.error(request, 'Email already exists')
-            return redirect('register')
+            return redirect('burger_shop:register')
 
         user = User.objects.create_user(
             username=username, email=email, password=password,

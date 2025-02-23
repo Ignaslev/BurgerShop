@@ -2,28 +2,40 @@
 {% load static %}
 
 {% block content %}
-{% if burger.image %}
-    <img class="card-img-top" src="{{ burger.image.url }}" style="object-fit: contain; max-width: 200px" >
-{% else %}
-    <img class="card-img-top" src="{% static 'img/no-image.png' %}" style="object-fit: contain; max-width: 250px" >
-{% endif %}
-<h1>{{ burger.name }}</h1>
-<h4>{{ burger.total_price}}eur</h4>
-<h4>Rating:</h4>
-<span class="review-stars">
-            {% if burger.average_rating %}
-            {% for _ in burger.average_rating %}
-                ⭐
-            {% endfor %}
-            {% else %}
-            No rating yet
-            {% endif %}
-        </span>
-<h4>Recepie:</h4>
-{% for item in recipe_items %}
-    <p>{{ item.ingredient }} x {{ item.quantity }}, <strong>Total:</strong> {{ item.price }}eur</p>
-{% endfor %}
 
+<div class="card mb-4" style="max-width: 100%;">
+    <div class="row g-0">
+        <div class="col-md-4 d-flex align-items-stretch justify-content-center" style="padding-top:20px">
+        {% if burger.image %}
+            <img src="{{ burger.image.url }}" style="object-fit: contain; height: 100%; max-height: 500px; width: auto;" >
+        {% else %}
+            <img class="card-img-top" src="{% static 'img/no-image.png' %}" style="object-fit: contain; max-width: 250px" >
+        {% endif %}
+        </div>
+        <div class="col-md-8">
+                <div class="card-body">
+                    <h1 class="card-title">{{ burger.name }}</h1>
+                    <h4 class="card-text">{{ burger.total_price}}eur</h4>
+                    <h4>Rating:</h4>
+                    <span class="review-stars">
+                                {% if burger.average_rating %}
+                                {% for _ in burger.average_rating %}
+                                    ⭐
+                                {% endfor %}
+                                {% else %}
+                                No rating yet
+                                {% endif %}
+                            </span>
+                    <h4>Recepie:</h4>
+                    {% for item in recipe_items %}
+                        <p>{{ item.ingredient }} x {{ item.quantity }}, <strong>Total:</strong> {{ item.price }}eur</p>
+                    {% endfor %}
+                </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4" style="max-width: 1500px; padding:30px">
 <h4>Reviews:</h4>
     {% for review in reviews %}
     <small><b>{{ review.user }}</b> <em>{{ review.date }}</em></small>
@@ -53,7 +65,7 @@
                     </div>
                     <h5>Rate it:</h5>
                     <div class="rating">
-                        {% for value, label in form.rating.field.choices %}
+                        {% for value in "12345" %}
                             <input type="radio" class="star-radio" name="rating" id="rating{{ value }}" value="{{ value }}">
                             <label for="rating{{ value }}" class="star" data-value="{{ value }}"></label>
                         {% endfor %}
@@ -70,6 +82,7 @@
             <p class="text-danger">Please login to leave a review</p>
         {% endif %}
     </div>
+</div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {

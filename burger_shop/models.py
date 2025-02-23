@@ -174,7 +174,7 @@ class BurgerReview(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     content = models.TextField('Content', max_length=2000)
     burger = models.ForeignKey(CustomBurger, on_delete=models.CASCADE, blank=True)
-    rating = models.IntegerField(choices=[(i, i) for i in range(1, 5)])
+    rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
