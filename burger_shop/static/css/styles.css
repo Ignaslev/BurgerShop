@@ -2,6 +2,15 @@ body {
     background-color: #ccc2ff;
 }
 
+.content {
+
+    margin: 20px auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 .sidebar-nav {
     list-style: none;
     margin-top: 10px;
@@ -43,7 +52,7 @@ body {
 }
 
 
-/* Hide the radio buttons */
+/* RATING STARS */
 .star-radio {
     display: none;
 }
@@ -51,22 +60,21 @@ body {
 .star {
     font-size: 2rem;
     cursor: pointer;
-    color: #ccc; /* Default grey */
+    color: #ccc;
     transition: color 0.2s;
 }
 
-/* Use CSS content to add the star */
 .star::before {
     content: "★";
 }
 
-/* Highlight stars on hover */
+
 .star:hover,
 .star:hover ~ .star {
     color: gold;
 }
 
-/* Keep selected stars gold */
+
 .star-radio:checked + .star,
 .star-radio:checked + .star ~ .star {
     color: gold;

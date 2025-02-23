@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-
+<div class="content">
 <h4>Your Order:</h4>
 <ul class="list-group mb-3">
     {% for item in order_items %}
@@ -166,5 +166,5 @@
     <a href="{% url 'burger_shop:finalize_order' order.id %}" class="btn btn-success">Finalize Order</a>
 {% endif %}
 
-
+</div>
 {% endblock %}

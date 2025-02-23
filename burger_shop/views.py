@@ -100,7 +100,7 @@ def get_user_profile(request):
             messages.info(request, 'Profile updated')
         else:
             messages.error(request, 'Error')
-        return redirect('user-profile')
+        return redirect('burger_shop:user-profile')
 
     p_form = ProfileUpdateForm(instance=request.user.profile)
     u_form = UserUpdateForm(instance=request.user)

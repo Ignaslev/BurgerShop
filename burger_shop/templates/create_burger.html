@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<div class="content">
 <h4>Create Your Custom Burger</h4>
 
 <form method="post" id="burgerForm">
@@ -49,7 +50,7 @@
     <input type="hidden" name="ingredients" id="ingredientsInput">
     <button type="submit">Submit Burger</button>
 </form>
-
+</div>
 <script>
     let selectedIngredients = {};
     let selectedBun = null;
