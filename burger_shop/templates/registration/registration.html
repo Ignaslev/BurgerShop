@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
 
-    <h3>Registrtion</h3><br/>
+<div class="card mb-4" style="max-width: 1500px; padding:30px">
+    <h3>Register:</h3><br/>
     <form method="post">
         {% csrf_token %}
         <div class="form-group">
@@ -40,9 +41,10 @@
             <input name="password2" type="password" class="form-control"
                    id="password2" aria-describedby="pwd2Help">
         </div>
-        <button type="submit" class="btn btn-primary register-button">Register</button>
+        <button type="submit" class="btn btn-primary register-button" style="margin-bottom: 15px;">Register</button>
     </form>
     <p>Or if you already registered <a
             href="{% url 'login' %}"><strong>log in.</strong></a></p>
 
+</div>
 {% endblock %}

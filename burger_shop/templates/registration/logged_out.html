@@ -1,9 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div>
-<h1>You have logged out!</h1>
-<p><a href="/">Back to homepage</a></p>
+<div class="d-flex align-items-center justify-content-center vh-100">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-lg p-4 rounded text-center">
+            <h1>You have logged out!</h1>
+            <a href="{% url 'login' %}" class="btn btn-primary m-2">Log in</a>
+            <a href="/" class="btn btn-secondary m-2">Homepage</a>
+        </div>
+    </div>
 </div>
 
 
