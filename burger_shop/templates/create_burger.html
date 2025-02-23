@@ -35,7 +35,7 @@
                             <div class="card-body d-flex flex-column align-items-center">
                                 <p class="mb-1" style="height: 40px; display: flex; align-items: center; justify-content: center;">{{ ingredient.name }}</p>
                                 <p class="mb-2">{{ ingredient.price }}eur</p>
-                                <input type="number" id="qty_{{ ingredient.id }}" value="1" min="1" class="form-control mb-2">
+                                <input type="number" id="qty_{{ ingredient.id }}" value="1" min="1" max="15" class="form-control mb-2">
                                 <button type="button" class="btn btn-primary" onclick="addIngredient({{ ingredient.id }}, '{{ ingredient.name }}', {{ ingredient.price }})">Add</button>
                             </div>
                         </div>
@@ -87,6 +87,18 @@
                 event.preventDefault(); // Stop form submission
                 alert('Please select a bun before submitting!');
             }
+
+        const totalIngredients = Object.values(selectedIngredients).reduce((sum, ingredient) => sum + ingredient.quantity, 0);
+            if (totalIngredients === 0) {
+            event.preventDefault(); // Stop form submission
+            alert('Please add at least one ingredient!');
+            return;
+            }
+
+    if (totalIngredients > 15) {
+        event.preventDefault(); // Stop form submission
+        alert('You can select a maximum of 15 ingredients!');
+        }
         });
     });
 
@@ -96,6 +108,15 @@
 
         let qtyInput = document.getElementById(`qty_${id}`);
         let quantity = parseInt(qtyInput.value) || 1;
+
+        // Calculate current total ingredients
+        const currentTotal = Object.values(selectedIngredients).reduce((sum, item) => sum + item.quantity, 0);
+
+        // Enforce maximum ingredient limit
+        if (currentTotal + quantity > 15) {
+            alert('You can select a maximum of 15 ingredients!');
+            return;
+            }
 
         if (selectedIngredients[id]) {
             selectedIngredients[id].quantity += quantity;
