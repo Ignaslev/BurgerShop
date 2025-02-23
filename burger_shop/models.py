@@ -109,6 +109,7 @@ class OrderItem(models.Model):
 
 
 class CustomBurger(models.Model):
+    objects = None
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     name = models.CharField('Name', max_length=50)
     image = models.ImageField(upload_to='users_burgers', blank=True, null=True)

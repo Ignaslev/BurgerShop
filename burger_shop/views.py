@@ -3,7 +3,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage
 
 from .forms import UserUpdateForm, ProfileUpdateForm, CustomBurgerForm, BurgerReviewForm
 from .models import User, MenuItem, Order, OrderItem, CustomBurger, CustomBurgerRecipe, Ingredient, BurgerReview, \
@@ -150,6 +150,11 @@ def order_detail(request, order_id):
 
     total_price = sum(item.total_price for item in order_items)
 
+
+    paginator = Paginator(user_burgers, 4)
+    page_number = request.GET.get('page')
+    user_burgers_page = paginator.get_page(page_number)
+
     if request.method == 'POST':
 
         # IF USER PRESES REMOVE, ITEM ID IS PASSED AND ITEM GETS REMOVED FROM ORDER
@@ -201,7 +206,7 @@ def order_detail(request, order_id):
         'burgers': burgers,
         'sides': sides,
         'drinks': drinks,
-        'user_burgers': user_burgers,
+        'user_burgers': user_burgers_page,
         'total_price': total_price,
     }
     return render(request, 'order_detail.html', context)
