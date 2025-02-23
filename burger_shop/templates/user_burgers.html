@@ -7,6 +7,10 @@
 
     {% if burgers %}
     <h4 style="margin-bottom:30px;">{{ user.username }} burgers:</h4>
+    <div class="mb-3">
+        <a href="?sort=date" class="btn btn-outline-primary {% if sort_by == 'date' %}active{% endif %}">Sort by Date</a>
+        <a href="?sort=rating" class="btn btn-outline-primary {% if sort_by == 'rating' %}active{% endif %}">Sort by Rating</a>
+    </div>
     <div class="row">
         {% for burger in burgers %}
             <div class="col-sm-6 col-md-3 d-flex align-items-stretch">

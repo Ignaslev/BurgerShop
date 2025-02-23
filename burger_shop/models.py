@@ -113,6 +113,7 @@ class CustomBurger(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     name = models.CharField('Name', max_length=50)
     image = models.ImageField(upload_to='users_burgers', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     @property
     def total_price(self):

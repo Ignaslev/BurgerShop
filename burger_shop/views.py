@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage
+from django.db.models import Avg
 
 from .forms import UserUpdateForm, ProfileUpdateForm, CustomBurgerForm, BurgerReviewForm
 from .models import User, MenuItem, Order, OrderItem, CustomBurger, CustomBurgerRecipe, Ingredient, BurgerReview, \
@@ -43,13 +44,21 @@ def menu(request):
 
 
 def all_custom_burgers(request):
-    custom_burgers = CustomBurger.objects.all()
+    sort_by = request.GET.get('sort', 'date')
+    custom_burgers = CustomBurger.objects.annotate(avg_rating=Avg('burgerreview__rating'))
+
+    if sort_by == 'rating':
+        custom_burgers = custom_burgers.order_by('-avg_rating', '-created_at')
+    elif sort_by == 'date':
+        custom_burgers = custom_burgers.order_by('-created_at')
+
     paginator = Paginator(custom_burgers, 8)
     page_number = request.GET.get('page')
     paged_burgers = paginator.get_page(page_number)
 
     context = {
-        'custom_burgers': paged_burgers
+        'custom_burgers': paged_burgers,
+        'sort_by': sort_by,
     }
 
     return render(request, 'custom_burgers.html', context=context)
@@ -274,12 +283,19 @@ def user_orders(request):
 
 @login_required
 def user_burgers(request):
-    burgers = CustomBurger.objects.filter(user=request.user)
+    sort_by = request.GET.get('sort', 'date')
+    burgers = CustomBurger.objects.filter(user=request.user).annotate(avg_rating=Avg('burgerreview__rating'))
+
+    if sort_by == 'rating':
+        burgers = burgers.order_by('-avg_rating', '-created_at')
+    elif sort_by == 'date':
+        burgers = burgers.order_by('-created_at')
+
     paginator = Paginator(burgers, 8)
     page_number = request.GET.get('page')
     paged_burgers = paginator.get_page(page_number)
 
-    return render(request, 'user_burgers.html', {'burgers': paged_burgers})
+    return render(request, 'user_burgers.html', {'burgers': paged_burgers, 'sort_by': sort_by})
 
 
 def get_user_burger(request, burger_id):
