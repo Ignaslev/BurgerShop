@@ -19,5 +19,6 @@ urlpatterns = [
     path('my-burgers/',views.user_burgers,name='user_burgers'),
     path('my-burgers/<int:burger_id>', views.get_user_burger, name='user_burger'),
     path('custom-burgers/', views.all_custom_burgers, name='custom_burgers'),
+    path('no-access/', views.pls_login, name='pls_login')
 
 ]

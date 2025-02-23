@@ -113,11 +113,15 @@ def get_user_profile(request):
     return render(request, 'profile.html', context=context)
 
 
-@login_required
+@login_required(login_url='burger_shop:pls_login')
 def start_order(request):
     order = Order.objects.create(user=request.user, order_status='d')
 
     return redirect('burger_shop:order_detail', order_id=order.id)
+
+
+def pls_login(request):
+    return render(request, 'pls_login.html')
 
 
 @login_required
@@ -292,7 +296,7 @@ def get_user_burger(request, burger_id):
     return render(request, 'custom_burger.html', context)
 
 
-@login_required
+
 def create_burger(request):
     # PULL OUT BUNS AND INGREDIENTS TO DISPLAY
     buns = Ingredient.objects.filter(category='Bun').all()
