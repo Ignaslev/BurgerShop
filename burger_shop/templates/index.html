@@ -3,7 +3,21 @@
 {% block content %}
 <div class="content">
 <h1>Welcome!</h1>
-<h4>Blog Posts</h4>
+    {% if user.is_authenticated %}
+    <div class="d-flex justify-content-center mt-4" style="margin-top: 20px; margin-bottom:20px;">
+    <a href="{% url 'burger_shop:start_order' %}" class="btn btn-success btn-md" style="margin-right: 20px">Start Your Order</a>
+    <a href="{% url 'burger_shop:create_burger' %}" class="btn btn-primary btn-md">Create custom burger</a>
+    </div>
+    {% else %}
+    <div class="text-center" style="margin-top: 20px; margin-bottom:20px;">
+            <h4 class="me-3">Sorry, only registered and loged in users can order or create custom burgers</h4>
+        <div>
+            <a href="{% url 'login' %}" class="btn btn-primary" style="margin: 15px">Log In</a>
+            <a href="{% url 'burger_shop:register' %}" class="btn btn-primary" style="margin: 15px">Register</a>
+        </div>
+        </div>
+    {% endif %}
+<h4>Blog Posts:</h4>
     <ul class="list-group">
         {% for post in blog_posts %}
         <li class="list-group-item" style="margin-top: 10px; margin-bottom: 10px; max-height: 250px; overflow: hidden;">
