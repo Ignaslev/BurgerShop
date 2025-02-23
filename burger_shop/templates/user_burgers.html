@@ -26,11 +26,13 @@
                             {% else %}
                             No rating yet
                             {% endif %}
+                        </span></p>
                         <p class="card-text"><strong>Price:</strong> {{ burger.total_price }}eur</p>
                     </div>
                 </div>
             </div>
         {% endfor %}
+
     {% else %}
     <div class="text-center">
         <h3 class="me-3">You dont have any customs burgers yet</h3>
@@ -39,7 +41,23 @@
         </div>
     </div>
     {% endif %}
+
 </div>
+    {% if burgers.has_other_pages %}
+        <ul class="pagination pagination-sm justify-content-center mt-4">
+        {% for nr in burgers.paginator.page_range %}
+            {% if burgers.number == nr %}
+                <li class="page-item active">
+                    <a class="page-link">{{ nr }}</a>
+                </li>
+            {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ nr }}">{{ nr }}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+        </ul>
+        {% endif %}
 </div>
 
 

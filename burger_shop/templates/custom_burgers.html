@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="content">
-    <h1>Users created custom burgers:</h1>
+    <h3>Users created custom burgers:</h3>
     <div class="row">
         {% for burger in custom_burgers %}
         <div class="col-sm-6 col-md-3 d-flex align-items-stretch">
@@ -32,6 +32,21 @@
         </div>
         {% endfor %}
     </div>
+     {% if custom_burgers.has_other_pages %}
+    <ul class="pagination pagination-sm justify-content-center mt-4">
+        {% for nr in custom_burgers.paginator.page_range %}
+            {% if custom_burgers.number == nr %}
+                <li class="page-item active">
+                    <a class="page-link">{{ nr }}</a>
+                </li>
+            {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ nr }}">{{ nr }}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+    {% endif %}
 </div>
 
 {% endblock %}

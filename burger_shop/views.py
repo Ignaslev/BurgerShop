@@ -3,18 +3,22 @@ from django.views.decorators.csrf import csrf_protect
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
-
+from django.core.paginator import Paginator
 
 from .forms import UserUpdateForm, ProfileUpdateForm, CustomBurgerForm, BurgerReviewForm
-from .models import User, MenuItem, Order, OrderItem, CustomBurger, CustomBurgerRecipe, Ingredient, BurgerReview, BlogPost
+from .models import User, MenuItem, Order, OrderItem, CustomBurger, CustomBurgerRecipe, Ingredient, BurgerReview, \
+    BlogPost
 from .utils import generate_burger_image
 
 
 def index(request):
     blog_posts = BlogPost.objects.all().order_by('-created_at')
+    paginator = Paginator(blog_posts, 5)
+    page_number = request.GET.get('page')
+    paged_blog_posts = paginator.get_page(page_number)
 
     context = {
-        'blog_posts':blog_posts
+        'blog_posts': paged_blog_posts
     }
     return render(request, 'index.html', context=context)
 
@@ -30,18 +34,22 @@ def menu(request):
     drinks = MenuItem.objects.filter(category='Drinks').all()
 
     context = {
-        'burgers' : burgers,
-        'sides' : sides,
-        'drinks' : drinks,
+        'burgers': burgers,
+        'sides': sides,
+        'drinks': drinks,
     }
 
     return render(request, 'menu.html', context=context)
 
+
 def all_custom_burgers(request):
     custom_burgers = CustomBurger.objects.all()
+    paginator = Paginator(custom_burgers, 8)
+    page_number = request.GET.get('page')
+    paged_burgers = paginator.get_page(page_number)
 
     context = {
-        'custom_burgers':custom_burgers
+        'custom_burgers': paged_burgers
     }
 
     return render(request, 'custom_burgers.html', context=context)
@@ -60,7 +68,6 @@ def register_user(request):
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         phone_nr = request.POST.get('phone_nr')
-
 
         if password != password2:
             messages.error(request, "Passwords doesn't match")
@@ -154,7 +161,7 @@ def order_detail(request, order_id):
             order_item_to_remove.delete()
             return redirect('burger_shop:order_detail', order_id=order.id)
 
-        #ADDING ITEM TO ORDER, EXTRACTING ITEM DETAILS
+        # ADDING ITEM TO ORDER, EXTRACTING ITEM DETAILS
         item_type = request.POST.get('item_type')
         item_id = request.POST.get('item_id')
         quantity = int(request.POST.get('quantity', 1))
@@ -194,8 +201,8 @@ def order_detail(request, order_id):
         'burgers': burgers,
         'sides': sides,
         'drinks': drinks,
-        'user_burgers' : user_burgers,
-        'total_price' : total_price,
+        'user_burgers': user_burgers,
+        'total_price': total_price,
     }
     return render(request, 'order_detail.html', context)
 
@@ -203,7 +210,6 @@ def order_detail(request, order_id):
 @login_required
 def finalize_order(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
-
 
     if order.order_status != 'd':
         return redirect('order_detail', order_id=order.id)
@@ -244,6 +250,7 @@ def finalize_order(request, order_id):
     }
     return render(request, 'finalize_order.html', context)
 
+
 @login_required
 def order_success(request):
     return render(request, 'order_success.html')
@@ -251,15 +258,23 @@ def order_success(request):
 
 @login_required
 def user_orders(request):
-    orders = Order.objects.filter(user=request.user).prefetch_related('orderitem_set__menu_item', 'orderitem_set__custom_burger').order_by('-time')
-    return render(request, 'user_orders.html', {'orders': orders})
+    orders = Order.objects.filter(user=request.user).prefetch_related('orderitem_set__menu_item',
+                                                                      'orderitem_set__custom_burger').order_by('-time')
+    paginator = Paginator(orders, 10)
+    page_number = request.GET.get('page')
+    paged_orders = paginator.get_page(page_number)
+
+    return render(request, 'user_orders.html', {'orders': paged_orders})
 
 
 @login_required
 def user_burgers(request):
     burgers = CustomBurger.objects.filter(user=request.user)
+    paginator = Paginator(burgers, 8)
+    page_number = request.GET.get('page')
+    paged_burgers = paginator.get_page(page_number)
 
-    return render(request, 'user_burgers.html',{'burgers':burgers})
+    return render(request, 'user_burgers.html', {'burgers': paged_burgers})
 
 
 def get_user_burger(request, burger_id):
@@ -283,18 +298,16 @@ def get_user_burger(request, burger_id):
         else:
             form = BurgerReviewForm(initial={'burger': burger, 'user': request.user})
 
-
     reviews = BurgerReview.objects.filter(burger=burger)
 
     context = {
         'burger': burger,
-        'recipe_items':recipe_items,
-        'form':form,
-        'reviews':reviews
+        'recipe_items': recipe_items,
+        'form': form,
+        'reviews': reviews
 
     }
     return render(request, 'custom_burger.html', context)
-
 
 
 def create_burger(request):
@@ -310,13 +323,13 @@ def create_burger(request):
 
         # IF NO INGREDIENTS REDIRECT BACK WITH ERROR MESSAGE
         if not ingredients_data:
-            return render(request, 'create_burger.html', {'form': CustomBurgerForm(), 'error': 'Please select ingredients!'})
+            return render(request, 'create_burger.html',
+                          {'form': CustomBurgerForm(), 'error': 'Please select ingredients!'})
 
         # FROM STRING OF INGREDIENTS IDS MAKING LIST OF NUMBERS
         ingredient_ids = [int(i) for i in ingredients_data.split(',')]
         # GETTING TOP BUN NAME (FOR IMAGE GENERATOR
         top_bun_name = Ingredient.objects.get(id=bun_id).part_image.name
-
 
         # CREATE BURGER
         burger = CustomBurger.objects.create(
@@ -350,7 +363,7 @@ def create_burger(request):
 
         # CREATES COMPLETED BURGER IMAGE WITH FUNCTION IN UTILS.PY
         if ingredient_image_paths:
-            image_path = generate_burger_image(ingredient_image_paths, burger.id,top_bun_name)
+            image_path = generate_burger_image(ingredient_image_paths, burger.id, top_bun_name)
             burger.image.name = image_path
             burger.save()
 
