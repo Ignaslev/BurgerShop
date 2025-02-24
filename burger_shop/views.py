@@ -307,6 +307,7 @@ def get_user_burger(request, burger_id):
     form = None
     if request.user.is_authenticated and not user_review:
         if request.method == 'POST':
+
             form = BurgerReviewForm(request.POST)
             if form.is_valid():
                 review = form.save(commit=False)
