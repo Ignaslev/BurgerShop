@@ -111,6 +111,7 @@
         <h4>You dont have custom burgers yet</h4>
     {% endif %}
 </div>
+
 {% if user_burgers.has_other_pages %}
     <ul class="pagination pagination-sm justify-content-center mt-4">
     {% for nr in user_burgers.paginator.page_range %}
@@ -176,7 +177,6 @@
 {% if order_items %}
     <div class="d-flex justify-content-between mb-3">
        <p><strong>Total:</strong> {{ total_price }} eur</p>
-
     </div>
     <a href="{% url 'burger_shop:finalize_order' order.id %}" class="btn btn-success">Finalize Order</a>
 {% endif %}

@@ -22,6 +22,7 @@ class Profile(models.Model):
         verbose_name = 'Profile'
         verbose_name_plural = 'Profiles'
 
+
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     time = models.DateTimeField(auto_now_add=True)
@@ -34,10 +35,10 @@ class Order(models.Model):
     )
 
     order_status = models.CharField('Order status',
-                                max_length=2,
-                                choices= ORDER_STATUS,
-                                default='d',
-                                help_text='Status of order')
+                                    max_length=2,
+                                    choices=ORDER_STATUS,
+                                    default='d',
+                                    help_text='Status of order')
 
     @property
     def total_price(self):
@@ -73,7 +74,6 @@ class OrderItem(models.Model):
     custom_burger = models.ForeignKey('CustomBurger', on_delete=models.SET_NULL, blank=True, null=True)
     quantity = models.IntegerField('Quantity')
 
-
     @property
     def total_price(self):
         if self.menu_item:
@@ -88,14 +88,12 @@ class OrderItem(models.Model):
         elif self.custom_burger:
             return f'{self.custom_burger.name} x {self.quantity}'
 
-
     class Meta:
         verbose_name = 'Order Item'
         verbose_name_plural = 'Order Items'
 
 
 class CustomBurger(models.Model):
-    objects = None
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     name = models.CharField('Name', max_length=50)
     image = models.ImageField(upload_to='users_burgers', blank=True, null=True)

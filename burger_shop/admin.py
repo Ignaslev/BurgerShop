@@ -7,7 +7,7 @@ class CustomBurgerRecipeInline(admin.TabularInline):
     extra = 1
 
 class CustomBurgerAdmin(admin.ModelAdmin):
-    list_display = ('name', 'user', 'total_price')
+    list_display = ('name', 'id', 'user', 'total_price', )
     inlines = [CustomBurgerRecipeInline]
 
 
@@ -18,6 +18,7 @@ class OrderItemInline(admin.TabularInline):
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('id', 'time', 'user', 'total_price', 'order_status')
     list_filter = ('time', 'user')
+    list_editable = ('order_status',)
     inlines = [OrderItemInline]
 
 

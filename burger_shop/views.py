@@ -3,7 +3,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator, EmptyPage
+from django.core.paginator import Paginator
 from django.db.models import Avg
 
 from .forms import UserUpdateForm, ProfileUpdateForm, CustomBurgerForm, BurgerReviewForm
@@ -14,7 +14,8 @@ from .utils import generate_burger_image
 
 def index(request):
     blog_posts = BlogPost.objects.all().order_by('-created_at')
-    paginator = Paginator(blog_posts, 5)
+
+    paginator = Paginator(blog_posts, 3)
     page_number = request.GET.get('page')
     paged_blog_posts = paginator.get_page(page_number)
 
@@ -149,7 +150,7 @@ def order_detail(request, order_id):
     drinks = MenuItem.objects.filter(category='Drinks')
 
     order_items = order.orderitem_set.all()
-    user_burgers = CustomBurger.objects.filter(user=request.user)
+    all_user_burgers = CustomBurger.objects.filter(user=request.user)
 
     for item in order_items:
         if item.menu_item:
@@ -159,8 +160,7 @@ def order_detail(request, order_id):
 
     total_price = sum(item.total_price for item in order_items)
 
-
-    paginator = Paginator(user_burgers, 4)
+    paginator = Paginator(all_user_burgers, 4)
     page_number = request.GET.get('page')
     user_burgers_page = paginator.get_page(page_number)
 
@@ -229,7 +229,6 @@ def finalize_order(request, order_id):
         return redirect('order_detail', order_id=order.id)
 
     order_items = order.orderitem_set.all()
-
     total_price = sum(item.total_price for item in order_items)
 
     if request.method == 'POST':

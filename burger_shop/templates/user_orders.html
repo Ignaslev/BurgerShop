@@ -21,7 +21,12 @@
                 {% endfor %}
             </span>
             <span>
-                {{ order.total_price }}eur, <strong>status:</strong> {{ order.get_order_status_display }}
+                {{ order.total_price }}eur, <strong>status:</strong>
+                <span class="{% if order.order_status == 'co' %} text-success
+                                  {% elif order.order_status == 'ca' %} text-danger
+                                  {% elif order.order_status == 'f' %} text-primary
+                                  {% else %} text-info
+                                  {% endif %}">{{ order.get_order_status_display }}</span>
                 {% if order.order_status == 'd' and order.orderitem_set.exists %}
                     <a href="{% url 'burger_shop:order_detail' order.id %}" class="btn btn-primary btn-sm">Continue Order</a>
                 {% endif %}

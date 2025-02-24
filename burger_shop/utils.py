@@ -2,6 +2,7 @@ from PIL import Image
 from django.conf import settings
 import os
 
+
 def generate_burger_image(ingredient_images, burger_id, top_bun_image):
     # GET BOTTOM BUN
     bottom_bun_path = os.path.join(settings.MEDIA_ROOT, 'burger_components/bottom-bun.png')
@@ -28,7 +29,7 @@ def generate_burger_image(ingredient_images, burger_id, top_bun_image):
     y_offset = 0
     for img in all_images:
         final_image.paste(img, (0, y_offset), img)
-        y_offset += img.height -20
+        y_offset += img.height - 20
 
     # SETTING FOLDER WHERE TO SAVE
     final_folder = os.path.join(settings.MEDIA_ROOT, 'custom_burgers')
