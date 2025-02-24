@@ -9,14 +9,14 @@
         <li class="list-group-item d-flex justify-content-between align-items-center">
             {% if item.menu_item %}
                   <span><strong> {{ item.menu_item.name }}</strong> x {{ item.quantity }} – {{ item.total_item_price }} EUR</span>
-                {% elif item.custom_burger %}
-                   <span><strong>Custom burger: {{ item.custom_burger.name }}</strong> x {{ item.quantity }} – {{ item.total_item_price }} EUR</span>
-                {% endif %}
-                <form method="post" style="display:inline;">
-                    {% csrf_token %}
-                    <input type="hidden" name="remove_item_id" value="{{ item.id }}">
-                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
-                </form>
+            {% elif item.custom_burger %}
+               <span><strong>Custom burger: {{ item.custom_burger.name }}</strong> x {{ item.quantity }} – {{ item.total_item_price }} EUR</span>
+            {% endif %}
+            <form method="post" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="remove_item_id" value="{{ item.id }}">
+                <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+            </form>
         </li>
     {% empty %}
         <li class="list-group-item">Your order is empty.</li>
@@ -26,7 +26,6 @@
 <div class="d-flex justify-content-between mb-3">
    <p><strong>Total:</strong> {{ total_price }} eur</p>
 </div>
-
 
 <h2>Menu:</h2>
 

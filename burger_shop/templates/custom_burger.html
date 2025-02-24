@@ -6,11 +6,11 @@
 <div class="card mb-4" style="max-width: 100%;">
     <div class="row g-0">
         <div class="col-md-4 d-flex align-items-stretch justify-content-center" style="padding-top:20px">
-        {% if burger.image %}
-            <img src="{{ burger.image.url }}" style="object-fit: contain; height: 100%; max-height: 500px; width: auto;" >
-        {% else %}
-            <img class="card-img-top" src="{% static 'img/no-image.png' %}" style="object-fit: contain; max-width: 250px" >
-        {% endif %}
+            {% if burger.image %}
+                <img src="{{ burger.image.url }}" style="object-fit: contain; height: 100%; max-height: 500px; width: auto;" >
+            {% else %}
+                <img class="card-img-top" src="{% static 'img/no-image.png' %}" style="object-fit: contain; max-width: 250px" >
+            {% endif %}
         </div>
         <div class="col-md-8">
                 <div class="card-body">
@@ -38,21 +38,21 @@
 <div class="card mb-4" style="max-width: 1500px; padding:30px">
 <h4>Reviews:</h4>
     {% for review in reviews %}
-    <small><b>{{ review.user }}</b> <em>{{ review.date }}</em></small>
-    <p class="bg-light">{{ review.content }}</p>
-    <p>
-        Rating:
-        <span class="review-stars">
-            {% for _ in review.rating|default:0|rjust:review.rating %}
-                ⭐
-            {% endfor %}
-        </span>
-    </p>
-    <hr/>
+        <small><b>{{ review.user }}</b> <em>{{ review.date }}</em></small>
+        <p class="bg-light">{{ review.content }}</p>
+        <p>
+            Rating:
+            <span class="review-stars">
+                {% for _ in review.rating|default:0|rjust:review.rating %}
+                    ⭐
+                {% endfor %}
+            </span>
+        </p>
+        <hr/>
     {% endfor %}
     {% if not reviews.first %}
-    <p>No reviews yet</p>
-    <hr/>
+        <p>No reviews yet</p>
+        <hr/>
     {% endif %}
     <div>
         {% if user.is_authenticated %}
@@ -70,7 +70,6 @@
                             <label for="rating{{ value }}" class="star" data-value="{{ value }}"></label>
                         {% endfor %}
                     </div>
-
                     <div>
                         <input type="submit" class="btn btn-outline-success btn-sm" value="Submit"/>
                     </div>
