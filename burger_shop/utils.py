@@ -4,6 +4,22 @@ import os
 
 
 def generate_burger_image(ingredient_images, burger_id, top_bun_image):
+    '''
+    Generates a custom burger image by stacking ingredient images.
+
+    Parameters:
+    - ingredient_images: List of ingredient image paths (excluding buns).
+    - burger_id : ID of the CustomBurger(for naming the output image).
+    - top_bun_image: Path to the top bun image.
+
+    Process:
+    - Opens the bottom bun, top bun, and ingredient images.
+    - Stacks them vertically with a small overlap.
+    - Saves the final image in the 'custom_burgers' folder.
+
+    Returns:
+    - str of generated image path
+    '''
     # GET BOTTOM BUN
     bottom_bun_path = os.path.join(settings.MEDIA_ROOT, 'burger_components/bottom-bun.png')
     bottom_bun = Image.open(bottom_bun_path)

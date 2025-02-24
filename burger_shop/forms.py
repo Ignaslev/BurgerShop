@@ -3,16 +3,29 @@ from .models import Profile, User, Ingredient, BurgerReview
 
 
 class ProfileUpdateForm(forms.ModelForm):
+    '''
+    Form to update user profile information.
+
+    Allows users to update their profile picture and phone number.
+    '''
     class Meta:
         model = Profile
         fields = ('picture', 'phone')
 
 class UserUpdateForm(forms.ModelForm):
+    '''
+    Form to update user account information.
+
+    Allows users to update their email address.
+    '''
     class Meta:
         model = User
         fields = ('email',)
 
 class BurgerReviewForm(forms.ModelForm):
+    '''
+    Form for submitting a burger review.
+    '''
     class Meta:
         model = BurgerReview
         fields = ('user', 'burger', 'content', 'rating')
@@ -24,6 +37,11 @@ class BurgerReviewForm(forms.ModelForm):
 
 
 class CustomBurgerForm(forms.Form):
+    '''
+    Form for creating a custom burger.
+
+    Allows users to name their burger, select a bun, and choose multiple ingredients.
+    '''
     name = forms.CharField(max_length=50, label='Burger Name')
 
     bun = forms.ModelChoiceField(

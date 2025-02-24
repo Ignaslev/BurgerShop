@@ -13,6 +13,12 @@ from .utils import generate_burger_image
 
 
 def index(request):
+    '''
+    Renders the homepage with a paginated list of blog posts.
+    Retrieves all blog posts ordered by creation date (newest first) and paginates them,
+    displaying three posts per page.
+    '''
+
     blog_posts = BlogPost.objects.all().order_by('-created_at')
 
     paginator = Paginator(blog_posts, 3)
@@ -26,11 +32,19 @@ def index(request):
 
 
 def blog_post(request, pk):
+    '''
+    Renders page for one blog post
+    '''
     post = get_object_or_404(BlogPost, pk=pk)
     return render(request, 'blog_post.html', {'post': post})
 
 
 def menu(request):
+    '''
+    Renders the menu page with categorized menu items.
+    Filters menu items by category and
+    passes them to the 'menu.html' template for display.
+    '''
     burgers = MenuItem.objects.filter(category='Burgers').all()
     sides = MenuItem.objects.filter(category='Sides').all()
     drinks = MenuItem.objects.filter(category='Drinks').all()
@@ -45,6 +59,11 @@ def menu(request):
 
 
 def all_custom_burgers(request):
+    '''
+    Renders a paginated list of all custom burgers with optional sorting.
+    Retrieves all custom burgers, calculates their average rating, and allows sorting
+    by either 'rating' or 'date'.
+    '''
     sort_by = request.GET.get('sort', 'date')
     custom_burgers = CustomBurger.objects.annotate(avg_rating=Avg('burgerreview__rating'))
 
@@ -67,6 +86,15 @@ def all_custom_burgers(request):
 
 @csrf_protect
 def register_user(request):
+    '''
+    Handles user registration.
+    If form method is 'POST':
+    Retrievs all info from form, checks if username and email available and if passwords match.
+    Creates user object.
+    Signal creates profile.
+    Assigns to group 'customer'.
+    Assigns phone number to profile.
+    '''
     if request.method == 'GET':
         return render(request, 'registration/registration.html')
 
@@ -108,6 +136,14 @@ def register_user(request):
 
 @login_required
 def get_user_profile(request):
+    '''
+    Handles displaying and updating the user's profile.
+
+    If form method is 'POST', retrieves data from the Profile and User update forms.
+    Validates and saves forms if valid, displays success message.
+    On error, shows an error message.
+    For 'GET', displays profile and user data in the forms.
+    '''
     if request.method == 'POST':
         p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
         u_form = UserUpdateForm(request.POST, instance=request.user)
@@ -132,17 +168,41 @@ def get_user_profile(request):
 
 @login_required(login_url='burger_shop:pls_login')
 def start_order(request):
+    '''
+    Creates a new draft order for the logged-in user.
+
+    Sets the order status to 'd' (draft).
+    Redirects to the order detail page for the created order.
+    '''
     order = Order.objects.create(user=request.user, order_status='d')
 
     return redirect('burger_shop:order_detail', order_id=order.id)
 
 
 def pls_login(request):
+    '''
+    Please log in page for 'start_order'.
+
+    As start_order creates draft order immidiatly, we use custom log in page to display if user is not authenticated
+    to prevent errors.
+    '''
     return render(request, 'pls_login.html')
 
 
 @login_required
 def order_detail(request, order_id):
+    '''
+    Handles displaying and updating user's order.
+
+    Retrieves the current order by ID and user. Displays menu items and user's custom burgers with pagination.
+
+    POST requests handle:
+    - Removing items from the order ('remove_item_id').
+    - Adding items to the order. If the item already exists, updates the quantity.
+
+    Calculates the total price of the order, including both menu items and custom burgers.
+    Redirects back to the same page after each POST action.
+    '''
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
     burgers = MenuItem.objects.filter(category='Burgers')
@@ -223,6 +283,18 @@ def order_detail(request, order_id):
 
 @login_required
 def finalize_order(request, order_id):
+    '''
+    Handles final review and confirmation of draft order.
+
+    GET request:
+    - Displays draft order with items and total price.
+    - Redirects if order is not in 'draft' status.
+
+    POST request:
+    - 'update': Updates item quantities or removes items if quantity is zero.
+    - 'remove_<item_id>': Removes item.
+    - 'confirm': Changes order status to 'confirmed' if the order has items.
+    '''
     order = get_object_or_404(Order, id=order_id, user=request.user)
 
     if order.order_status != 'd':
@@ -266,11 +338,20 @@ def finalize_order(request, order_id):
 
 @login_required
 def order_success(request):
+    '''
+    Displays the order success page after an order is confirmed.
+    '''
     return render(request, 'order_success.html')
 
 
 @login_required
 def user_orders(request):
+    '''
+    Displays paginated list of user's orders.
+
+    Orders include related menu items and custom burgers for clearity.
+    Sorted by most recent orders first.
+    '''
     orders = Order.objects.filter(user=request.user).prefetch_related('orderitem_set__menu_item',
                                                                       'orderitem_set__custom_burger').order_by('-time')
     paginator = Paginator(orders, 10)
@@ -282,6 +363,13 @@ def user_orders(request):
 
 @login_required
 def user_burgers(request):
+    '''
+    Displays paginated list of user's custom burgers.
+
+    Sorted by most recent burgers first.
+
+    Handles sorting method, can sort by date or rating.
+    '''
     sort_by = request.GET.get('sort', 'date')
     burgers = CustomBurger.objects.filter(user=request.user).annotate(avg_rating=Avg('burgerreview__rating'))
 
@@ -298,6 +386,12 @@ def user_burgers(request):
 
 
 def get_user_burger(request, burger_id):
+    '''
+    Displays a specific custom burger with its recipe and reviews.
+
+    Authenticated users can leave a review if they haven't already.
+    Handles burger review form submission and displays all burger reviews.
+    '''
     burger = get_object_or_404(CustomBurger, pk=burger_id)
     recipe_items = burger.customburgerrecipe_set.all()
 
@@ -332,6 +426,16 @@ def get_user_burger(request, burger_id):
 
 
 def create_burger(request):
+    '''
+    Handles the creation of a custom burger.
+
+    - Displays available buns and ingredients for selection.
+    - Processes the form submission to create a burger with selected ingredients.
+    - Validates ingredient selection and handles errors.
+    - Tracks ingredient quantities and updates the database.
+    - Generates a burger image using the selected ingredients and saves it.
+    - Redirects to the burger creation success page upon completion.
+    '''
     # PULL OUT BUNS AND INGREDIENTS TO DISPLAY
     buns = Ingredient.objects.filter(category='Bun').all()
     ingredients = Ingredient.objects.exclude(category='Bun')
@@ -396,4 +500,7 @@ def create_burger(request):
 
 @login_required
 def create_burger_success(request):
+    '''
+    Renders the burger creation success page.
+    '''
     return render(request, 'create_burger_success.html')
