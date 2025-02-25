@@ -38,6 +38,35 @@ class Profile(models.Model):
         verbose_name_plural = 'Profiles'
 
 
+class Nutrition(models.Model):
+    '''
+    Stores nutritional values for ingredients and menu items.
+
+    "ingredient" and "menu_item" creates one to one relationship (one can have only one nutrition entry). Either can be
+    empty and "Null' if other is chosen.
+    '''
+    calories = models.PositiveIntegerField(default=0)
+    protein = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
+    fat = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
+    carbs = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
+
+    ingredient = models.OneToOneField(
+        'Ingredient',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='nutrition'
+    )
+
+    menu_item = models.OneToOneField(
+        'MenuItem',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='nutrition'
+    )
+
+
 class Order(models.Model):
     '''
     Model Order - where we create main order.

@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Profile, Order, MenuItem, OrderItem, CustomBurger, Ingredient, CustomBurgerRecipe, BlogPost, BurgerReview
+from django import forms
+from .models import Profile, Order, MenuItem, OrderItem, CustomBurger, Ingredient, CustomBurgerRecipe, BlogPost, BurgerReview, Nutrition
 
 
 class CustomBurgerRecipeInline(admin.TabularInline):
@@ -35,6 +36,33 @@ class OrderAdmin(admin.ModelAdmin):
     list_editable = ('order_status',)
     inlines = [OrderItemInline]
 
+class NutritionInline(admin.TabularInline):
+    '''
+    Allows adding and editing nutrition for ingredients and menu items in admin panel.
+    '''
+    model = Nutrition
+    can_delete = False
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'ingredient':
+            # Hide the field if editing a MenuItem
+            if 'menuitem' in request.path:
+                kwargs['widget'] = forms.HiddenInput()
+            # Automatically assign the ingredient id
+            if 'ingredient' in request.path:
+                kwargs['required'] = False
+
+        if db_field.name == 'menu_item':
+            # Hide the field if editing an Ingredient
+            if 'ingredient' in request.path:
+                kwargs['widget'] = forms.HiddenInput()
+            # Automatically assign the menu item id
+            if 'menuitem' in request.path:
+                kwargs['required'] = False
+
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
 
 class IngredientAdmin(admin.ModelAdmin):
     '''
@@ -44,6 +72,7 @@ class IngredientAdmin(admin.ModelAdmin):
     list_display = ('name', 'category', 'price')
     list_filter = ('category',)
     list_editable = ('price',)
+    inlines = [NutritionInline]
 
 
 class MenuItemAdmin(admin.ModelAdmin):
@@ -54,6 +83,8 @@ class MenuItemAdmin(admin.ModelAdmin):
     list_display = ('name', 'category', 'price')
     list_filter = ('category',)
     list_editable = ('price',)
+    inlines = [NutritionInline]
+
 
 class BurgerReviewAdmin(admin.ModelAdmin):
     '''
