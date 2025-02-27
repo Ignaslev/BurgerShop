@@ -101,6 +101,17 @@ class Order(models.Model):
         '''
         return sum(item.total_price for item in self.orderitem_set.all())
 
+    @property
+    def total_nutrition(self):
+        '''
+        Calculates total nutrition for the entire order by summing all order items.
+        '''
+        nutrition_sum = {}
+        for item in self.orderitem_set.all():
+            for key, value in item.item_total_nutrition.items():
+                nutrition_sum[key] = nutrition_sum.get(key, 0) + value
+        return nutrition_sum
+
     def __str__(self):
         user_info = f'{self.user.id}. {self.user}' if self.user else 'No user'
         return f'{user_info}, {self.time}'
@@ -163,6 +174,30 @@ class OrderItem(models.Model):
             return self.custom_burger.total_price * self.quantity
         return 0
 
+    @property
+    def item_total_nutrition(self):
+        '''
+        Calculates total nutrition for this item (handles custom burgers and menu items).
+        '''
+        if self.custom_burger and self.custom_burger.total_nutrition:
+            nutrition = self.custom_burger.total_nutrition
+            return {
+                'calories': nutrition['calories'] * self.quantity,
+                'protein': nutrition['protein'] * self.quantity,
+                'fat': nutrition['fat'] * self.quantity,
+                'carbs': nutrition['carbs'] * self.quantity,
+            }
+        elif self.menu_item and self.menu_item.nutrition:
+            nutrition = self.menu_item.nutrition
+            return {
+                'calories': nutrition.calories * self.quantity,
+                'protein': nutrition.protein * self.quantity,
+                'fat': nutrition.fat * self.quantity,
+                'carbs': nutrition.carbs * self.quantity,
+            }
+        return {}
+
+
     def __str__(self):
         if self.menu_item:
             return f'{self.menu_item.name} x {self.quantity}'
@@ -207,6 +242,23 @@ class CustomBurger(models.Model):
         '''
         avg_rating = self.burgerreview_set.aggregate(Avg('rating'))['rating__avg']
         return range(round(avg_rating)) if avg_rating else 0
+
+    @property
+    def total_nutrition(self):
+        '''
+        Sums up total nutrition from all ingredients in this custom burger.
+        '''
+        total = {'calories': 0, 'protein': 0, 'fat': 0, 'carbs': 0}
+
+        for recipe_item in self.customburgerrecipe_set.all():
+            ingredient_nutrition = recipe_item.total_nutrition
+            total['calories'] += ingredient_nutrition['calories']
+            total['protein'] += ingredient_nutrition['protein']
+            total['fat'] += ingredient_nutrition['fat']
+            total['carbs'] += ingredient_nutrition['carbs']
+
+        return total
+
 
     def __str__(self):
         return f'{self.name}'
@@ -267,6 +319,19 @@ class CustomBurgerRecipe(models.Model):
             return self.ingredient.price * self.quantity
         return 0
 
+    @property
+    def total_nutrition(self):
+        '''
+        Calculates total nutrition for this ingredient in the burger (nutrition * quantity).
+        '''
+        if self.ingredient and self.ingredient.nutrition:
+            return {
+                'calories': self.ingredient.nutrition.calories * self.quantity,
+                'protein': self.ingredient.nutrition.protein * self.quantity,
+                'fat': self.ingredient.nutrition.fat * self.quantity,
+                'carbs': self.ingredient.nutrition.carbs * self.quantity,
+            }
+        return {'calories': 0, 'protein': 0, 'fat': 0, 'carbs': 0}
 
 class BlogPost(models.Model):
     '''

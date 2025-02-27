@@ -8,9 +8,17 @@
     {% for item in order_items %}
         <li class="list-group-item d-flex justify-content-between align-items-center">
             {% if item.menu_item %}
-                  <span><strong> {{ item.menu_item.name }}</strong> x {{ item.quantity }} – {{ item.total_item_price }} EUR</span>
+            <span><strong> {{ item.menu_item.name }}</strong> x {{ item.quantity }} – {{ item.total_item_price }} EUR.</span>
+            <span>Nutrition: Calories: {{ item.item_total_nutrition.calories }},
+                Protein: {{ item.item_total_nutrition.protein }}g,
+                Fat: {{ item.item_total_nutrition.fat }}g,
+                Carbs: {{ item.item_total_nutrition.carbs }}g</span>
             {% elif item.custom_burger %}
-               <span><strong>Custom burger: {{ item.custom_burger.name }}</strong> x {{ item.quantity }} – {{ item.total_item_price }} EUR</span>
+                <span><strong>Custom burger: {{ item.custom_burger.name }}</strong> x {{ item.quantity }} – {{ item.total_item_price }} EUR</span>
+                <span>Nutrition: Calories: {{ item.item_total_nutrition.calories }},
+                Protein: {{ item.item_total_nutrition.protein }}g,
+                Fat: {{ item.item_total_nutrition.fat }}g,
+                Carbs: {{ item.item_total_nutrition.carbs }}g</span>
             {% endif %}
             <form method="post" style="display:inline;">
                 {% csrf_token %}
@@ -25,6 +33,16 @@
 
 <div class="d-flex justify-content-between mb-3">
    <p><strong>Total:</strong> {{ total_price }} eur</p>
+</div>
+<p><strong>Nutrition:</strong></p>
+<div class="d-flex justify-content-between mb-3">
+    <ul>
+    {% for nutrient, value in order.total_nutrition.items %}
+        <li><strong>{{ nutrient|title }}:</strong> {{ value }}</li>
+    {% empty %}
+        <li>No nutrition information available.</li>
+    {% endfor %}
+    </ul>
 </div>
 
 <h2>Menu:</h2>
@@ -158,27 +176,32 @@
     {% for item in order_items %}
         <li class="list-group-item d-flex justify-content-between align-items-center">
             {% if item.menu_item %}
-                    {{ item.menu_item.name }} x {{ item.quantity }} – {{ item.total_item_price }} EUR
-                {% elif item.custom_burger %}
-                    {{ item.custom_burger.name }} x {{ item.quantity }} – {{ item.total_item_price }} EUR
-                {% endif %}
-                <form method="post" style="display:inline;">
-                    {% csrf_token %}
-                    <input type="hidden" name="remove_item_id" value="{{ item.id }}">
-                    <button type="submit" class="btn btn-danger btn-sm">Remove</button>
-                </form>
+            <span><strong> {{ item.menu_item.name }}</strong> x {{ item.quantity }} – {{ item.total_item_price }} EUR.</span>
+            <span>Nutrition: Calories: {{ item.item_total_nutrition.calories }},
+                Protein: {{ item.item_total_nutrition.protein }}g,
+                Fat: {{ item.item_total_nutrition.fat }}g,
+                Carbs: {{ item.item_total_nutrition.carbs }}g</span>
+            {% elif item.custom_burger %}
+                <span><strong>Custom burger: {{ item.custom_burger.name }}</strong> x {{ item.quantity }} – {{ item.total_item_price }} EUR</span>
+                <span>Nutrition: Calories: {{ item.item_total_nutrition.calories }},
+                Protein: {{ item.item_total_nutrition.protein }}g,
+                Fat: {{ item.item_total_nutrition.fat }}g,
+                Carbs: {{ item.item_total_nutrition.carbs }}g</span>
+            {% endif %}
+            <form method="post" style="display:inline;">
+                {% csrf_token %}
+                <input type="hidden" name="remove_item_id" value="{{ item.id }}">
+                <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+            </form>
         </li>
     {% empty %}
         <li class="list-group-item">Your order is empty.</li>
     {% endfor %}
 </ul>
 
-{% if order_items %}
-    <div class="d-flex justify-content-between mb-3">
-       <p><strong>Total:</strong> {{ total_price }} eur</p>
-    </div>
-    <a href="{% url 'burger_shop:finalize_order' order.id %}" class="btn btn-success">Finalize Order</a>
-{% endif %}
-
+<div class="d-flex justify-content-between mb-3">
+   <p><strong>Total:</strong> {{ total_price }} eur</p>
+</div>
+<a href="{% url 'burger_shop:finalize_order' order.id %}" class="btn btn-success">Finalize Order</a>
 </div>
 {% endblock %}

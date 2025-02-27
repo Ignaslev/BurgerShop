@@ -45,9 +45,10 @@ def menu(request):
     Filters menu items by category and
     passes them to the 'menu.html' template for display.
     '''
-    burgers = MenuItem.objects.filter(category='Burgers').all()
-    sides = MenuItem.objects.filter(category='Sides').all()
-    drinks = MenuItem.objects.filter(category='Drinks').all()
+    burgers = MenuItem.objects.filter(category='Burgers').select_related('nutrition')
+    sides = MenuItem.objects.filter(category='Sides').select_related('nutrition')
+    drinks = MenuItem.objects.filter(category='Drinks').select_related('nutrition')
+
 
     context = {
         'burgers': burgers,
@@ -277,6 +278,7 @@ def order_detail(request, order_id):
         'drinks': drinks,
         'user_burgers': user_burgers_page,
         'total_price': total_price,
+        'total_nutrition': order.total_nutrition,
     }
     return render(request, 'order_detail.html', context)
 
