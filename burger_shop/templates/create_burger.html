@@ -158,7 +158,7 @@
             <div id="totalNutrition"></div>
             <input type="hidden" name="bun_id" id="bunIdInput">
             <input type="hidden" name="ingredients" id="ingredientsInput">
-            <button type="submit" style="margin-top: 20px;">Submit Burger</button>
+            <button type="submit" class="btn btn-success" style="margin-top: 20px;">Submit Burger</button>
         </form>
 
     {% else %}
@@ -247,7 +247,8 @@
                                             protein: protein,
                                             fat: fat,
                                             carbs: carbs},
-                                        isBun: isBun
+                                        isBun: isBun,
+                                        quantity: parseInt(document.getElementById(`qty_${id}`).value) || 1
             };
         }
         updatePreview();
@@ -258,6 +259,40 @@
             delete selectedIngredients[id];
         }
         updatePreview();
+    }
+
+    function updateQuantity(ingredientId) {
+        const quantityInput = document.getElementById(`quantity_${ingredientId}`);
+        if (!quantityInput) {
+            console.error(`Quantity input for ingredient ID ${ingredientId} not found`);
+            return; // Exit if input not found
+        }
+
+        const newQuantity = parseInt(quantityInput.value);
+
+        if (newQuantity >= 1) {
+            // Calculate current total ingredients excluding the current one being updated
+            let currentTotal = 0;
+            for (let id in selectedIngredients) {
+                if (id !== ingredientId) { // Don't count current ingredient yet
+                    currentTotal += selectedIngredients[id].quantity;
+                }
+            }
+            // Check against total limit including the new quantity
+            if (currentTotal + newQuantity <= 15) {
+                selectedIngredients[ingredientId].quantity = newQuantity;
+                console.log("selectedIngredients after quantity update:", selectedIngredients); // ADDED
+                updatePreview(); // Update the preview after modifying the quantity
+                console.log("updatePreview called"); // ADDED
+            } else {
+                alert('You can select a maximum of 15 ingredients!');
+                quantityInput.value = selectedIngredients[ingredientId].quantity; // Revert input to previous valid quantity
+            }
+
+        } else {
+            alert('Quantity must be at least 1');
+            quantityInput.value = selectedIngredients[ingredientId].quantity; // Revert input to previous valid quantity
+        }
     }
 
     function updatePreview() {
@@ -317,9 +352,23 @@
 
             let listItem = document.createElement('li');
             listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
-            listItem.innerHTML = `<strong>${ingredient.name}</strong> - ${ingredient.price.toFixed(2)}eur x ${ingredient.quantity} = <strong>${totalIngredientPrice.toFixed(2)}eur</strong>
-                                  <small>Calories: ${totalCalories.toFixed(2)} kcal, Carbs: ${totalCarbs.toFixed(2)}g, Fat: ${totalFat.toFixed(2)}g, Protein: ${totalProtein.toFixed(2)}g</small>
-                                  <button class="btn btn-danger btn-sm" onclick="removeIngredient(${id})">Remove</button>`;
+
+            listItem.innerHTML =`
+            <div class="d-flex justify-content-between align-items-center" style="width: 100%;">
+    <div class="d-flex align-items-center"> <span>
+         <strong>${ingredient.name}</strong>
+        </span>
+        <input type="number" class="form-control form-control-sm quantity-input" id="quantity_${id}" value="${ingredient.quantity}" min="1" style="width: 50px; margin-left: 10px; margin-right: 5px;" onchange="updateQuantity('${id}')">
+        <span>
+         <small>x ${ingredient.price.toFixed(2)}eur = <strong>${totalIngredientPrice.toFixed(2)}eur</strong></small>
+        </span>
+    </div>
+    <div class="text-center" style="min-width: 250px;"> <small>Calories: ${totalCalories.toFixed(2)} kcal, Carbs: ${totalCarbs.toFixed(2)}g, Fat: ${totalFat.toFixed(2)}g, Protein: ${totalProtein.toFixed(2)}g</small>
+    </div>
+    <div> <button class="btn btn-danger btn-sm" onclick="removeIngredient(${id})">Remove</button>
+    </div>
+ </div>`;
+
             previewList.appendChild(listItem);
 
             for (let i = 0; i < ingredient.quantity; i++) {
