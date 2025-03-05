@@ -442,6 +442,14 @@ def create_burger(request):
     buns = Ingredient.objects.filter(category='Bun').all()
     ingredients = Ingredient.objects.exclude(category='Bun')
 
+    categorized_ingredients = {
+        'patty': Ingredient.objects.filter(category='Patty'),
+        'cheese': Ingredient.objects.filter(category='Cheese'),
+        'vegetables': Ingredient.objects.filter(category='Vegetables'),
+        'sauce': Ingredient.objects.filter(category='Sauce'),
+        'extras': Ingredient.objects.filter(category='Extras'),
+    }
+
     if request.method == 'POST':
         # PULL OUT CREATED BURGER DATA
         burger_name = request.POST.get('name')
@@ -497,7 +505,7 @@ def create_burger(request):
         return redirect('burger_shop:create_burger_success')
 
     form = CustomBurgerForm()
-    return render(request, 'create_burger.html', {'form': form, 'buns': buns, 'ingredients': ingredients})
+    return render(request, 'create_burger.html', {'form': form, 'buns': buns, 'ingredients': ingredients, 'categorized_ingredients': categorized_ingredients})
 
 
 @login_required
