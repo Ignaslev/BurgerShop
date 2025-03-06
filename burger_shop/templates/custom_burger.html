@@ -3,7 +3,7 @@
 
 {% block content %}
 
-<div class="card mb-4" style="max-width: 100%;">
+<div class="card mb-4 shadow" style="max-width: 100%;">
     <div class="row g-0">
         <div class="col-md-4 d-flex align-items-stretch justify-content-center" style="padding-top:20px">
             {% if burger.image %}
@@ -35,7 +35,45 @@
     </div>
 </div>
 
-<div class="card mb-4" style="max-width: 1500px; padding:30px">
+<div class="card mb-4 shadow" style="max-width: 1500px; padding:30px">
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Ingredient</th>
+                    <th>Quantity</th>
+                    <th>Calories</th>
+                    <th>Protein (g)</th>
+                    <th>Fat (g)</th>
+                    <th>Carbs (g)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in recipe_items %}
+                <tr>
+                    <td>{{ item.ingredient.name }}</td>
+                    <td>x{{ item.quantity }}</td>
+                    <td>{{ item.total_nutrition.calories|floatformat:0 }}</td>
+                    <td>{{ item.total_nutrition.protein|floatformat:2 }}</td>
+                    <td>{{ item.total_nutrition.fat|floatformat:2 }}</td>
+                    <td>{{ item.total_nutrition.carbs|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th scope="row" colspan="2"><strong>Total Burger Nutrition:</strong></th>
+                    <td><strong>{{ burger.total_nutrition.calories|floatformat:0 }}</strong></td>
+                    <td><strong>{{ burger.total_nutrition.protein|floatformat:2 }}</strong></td>
+                    <td><strong>{{ burger.total_nutrition.fat|floatformat:2 }}</strong></td>
+                    <td><strong>{{ burger.total_nutrition.carbs|floatformat:2 }}</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<div class="card mb-4 shadow" style="max-width: 1500px; padding:30px">
 <h4>Reviews:</h4>
     {% for review in reviews %}
         <small><b>{{ review.user }}</b> <em>{{ review.date }}</em></small>

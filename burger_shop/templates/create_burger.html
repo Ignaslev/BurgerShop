@@ -11,19 +11,22 @@
             <div class="row">
                 {% for bun in buns %}
                     <div class="col-sm-6 col-md-3 d-flex align-items-stretch">
-                        <div class="card mb-4 shadow">
+                        <div class="card m-2 shadow p-2 w-100 d-flex flex-column justify-content-between" style="width: 150px; text-align: center;">
                             <img class="card-img-top" src="{{ bun.part_image.url }}" style="object-fit: contain;">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ bun.name }}</h5>
-                                <p class="card-text"><strong>Price:</strong> {{ bun.price }} eur</p>
-                                <ul>
-                                    <li>Calories: {{bun.nutrition.calories}}</li>
-                                    <li>Protein: {{bun.nutrition.protein}}</li>
-                                    <li>Fat: {{bun.nutrition.fat}}</li>
-                                    <li>Carbs: {{bun.nutrition.carbs}}</li>
-                                </ul>
-                                <input type="radio" name="bun" value="{{ bun.id }}" class="select-bun" data-name="{{ bun.name }}" data-price="{{ bun.price }}"
-                                data-calories="{{ bun.nutrition.calories }}" data-protein="{{ bun.nutrition.protein }}" data-fat="{{ bun.nutrition.fat }}" data-carbs="{{ bun.nutrition.carbs }}"> <strong>Select</strong>
+                            <div class="card-body d-flex flex-column align-items-center">
+                                <div>
+                                    <p class="card-title" style="height: 40px; display: flex; align-items: center; justify-content: center;"><b>{{ bun.name }}</b></p>
+                                    <p class="mb-2">{{ bun.price }}eur</p>
+                                    <p style="margin-bottom: 0.1rem;"><small><b>Nutrition</b></small></p>
+                                        <p style="margin-bottom: 0.1rem;"><small>-Calories: {{bun.nutrition.calories}}</small></p>
+                                        <p style="margin-bottom: 0.1rem;"><small>-Protein: {{bun.nutrition.protein}}</small></p>
+                                        <p style="margin-bottom: 0.1rem;"><small>-Fat: {{bun.nutrition.fat}}</small></p>
+                                        <p><small>-Carbs: {{bun.nutrition.carbs}}</small></p>
+                                </div>
+                                <div>
+                                    <input type="radio" name="bun" value="{{ bun.id }}" class="select-bun" data-name="{{ bun.name }}" data-price="{{ bun.price }}"
+                                    data-calories="{{ bun.nutrition.calories }}" data-protein="{{ bun.nutrition.protein }}" data-fat="{{ bun.nutrition.fat }}" data-carbs="{{ bun.nutrition.carbs }}"> <strong>Select</strong>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -35,17 +38,18 @@
             <div class="row">
                     {% for ingredient in categorized_ingredients.patty %}
                         <div class="col-md-3 d-flex">
-                            <div class="card m-2 p-2 w-100 d-flex flex-column justify-content-between" style="width: 150px; text-align: center;">
+                            <div class="card m-2 shadow p-2 w-100 d-flex flex-column justify-content-between" style="width: 150px; text-align: center;">
                                 <img src="{{ ingredient.part_image.url }}" class="card-img-top mx-auto" alt="{{ ingredient.name }}" style="object-fit: contain; max-height: 100px;">
                                 <div class="card-body d-flex flex-column align-items-center">
-                                    <p class="mb-1" style="height: 40px; display: flex; align-items: center; justify-content: center;">{{ ingredient.name }}</p>
-                                    <p class="mb-2">{{ ingredient.price }}eur</p>
-                                    <ul>
-                                        <li>Calories: {{ingredient.nutrition.calories}}</li>
-                                        <li>Protein: {{ingredient.nutrition.protein}}</li>
-                                        <li>Fat: {{ingredient.nutrition.fat}}</li>
-                                        <li>Carbs: {{ingredient.nutrition.carbs}}</li>
-                                    </ul>
+                                    <div>
+                                        <p class="mb-1" style="height: 40px; display: flex; align-items: center; justify-content: center;"><b>{{ ingredient.name }}</b></p>
+                                        <p class="mb-2">{{ ingredient.price }}eur</p>
+                                        <p style="margin-bottom: 0.1rem;"><small><b>Nutrition</b></small></p>
+                                            <p style="margin-bottom: 0.1rem;"><small>-Calories: {{ingredient.nutrition.calories}}</small></p>
+                                            <p style="margin-bottom: 0.1rem;"><small>-Protein: {{ingredient.nutrition.protein}}</small></p>
+                                            <p style="margin-bottom: 0.1rem;"><small>-Fat: {{ingredient.nutrition.fat}}</small></p>
+                                            <p><small>-Carbs: {{ingredient.nutrition.carbs}}</small></p>
+                                    </div>
                                     <input type="number" id="qty_{{ ingredient.id }}" value="1" min="1" max="15" class="form-control mb-2">
                                     <button type="button" class="btn btn-primary" onclick="addIngredient({{ ingredient.id }}, '{{ ingredient.name }}', {{ ingredient.price }},
                                     {{ ingredient.nutrition.calories }}, {{ ingredient.nutrition.protein }}, {{ ingredient.nutrition.fat }}, {{ ingredient.nutrition.carbs }})">
@@ -59,17 +63,18 @@
             <div class="row">
                     {% for ingredient in categorized_ingredients.cheese %}
                         <div class="col-md-3 d-flex">
-                            <div class="card m-2 p-2 w-100 d-flex flex-column justify-content-between" style="width: 150px; text-align: center;">
+                            <div class="card m-2 shadow p-2 w-100 d-flex flex-column justify-content-between" style="width: 150px; text-align: center;">
                                 <img src="{{ ingredient.part_image.url }}" class="card-img-top mx-auto" alt="{{ ingredient.name }}" style="object-fit: contain; max-height: 100px;">
                                 <div class="card-body d-flex flex-column align-items-center">
-                                    <p class="mb-1" style="height: 40px; display: flex; align-items: center; justify-content: center;">{{ ingredient.name }}</p>
-                                    <p class="mb-2">{{ ingredient.price }}eur</p>
-                                    <ul>
-                                        <li>Calories: {{ingredient.nutrition.calories}}</li>
-                                        <li>Protein: {{ingredient.nutrition.protein}}</li>
-                                        <li>Fat: {{ingredient.nutrition.fat}}</li>
-                                        <li>Carbs: {{ingredient.nutrition.carbs}}</li>
-                                    </ul>
+                                    <div>
+                                        <p class="mb-1" style="height: 40px; display: flex; align-items: center; justify-content: center;"><b>{{ ingredient.name }}</b></p>
+                                        <p class="mb-2">{{ ingredient.price }}eur</p>
+                                        <p style="margin-bottom: 0.1rem;"><small><b>Nutrition</b></small></p>
+                                            <p style="margin-bottom: 0.1rem;"><small>-Calories: {{ingredient.nutrition.calories}}</small></p>
+                                            <p style="margin-bottom: 0.1rem;"><small>-Protein: {{ingredient.nutrition.protein}}</small></p>
+                                            <p style="margin-bottom: 0.1rem;"><small>-Fat: {{ingredient.nutrition.fat}}</small></p>
+                                            <p><small>-Carbs: {{ingredient.nutrition.carbs}}</small></p>
+                                    </div>
                                     <input type="number" id="qty_{{ ingredient.id }}" value="1" min="1" max="15" class="form-control mb-2">
                                     <button type="button" class="btn btn-primary" onclick="addIngredient({{ ingredient.id }}, '{{ ingredient.name }}', {{ ingredient.price }},
                                     {{ ingredient.nutrition.calories }}, {{ ingredient.nutrition.protein }}, {{ ingredient.nutrition.fat }}, {{ ingredient.nutrition.carbs }})">
@@ -83,17 +88,18 @@
             <div class="row">
                     {% for ingredient in categorized_ingredients.vegetables %}
                         <div class="col-md-3 d-flex">
-                            <div class="card m-2 p-2 w-100 d-flex flex-column justify-content-between" style="width: 150px; text-align: center;">
+                            <div class="card m-2 shadow p-2 w-100 d-flex flex-column justify-content-between" style="width: 150px; text-align: center;">
                                 <img src="{{ ingredient.part_image.url }}" class="card-img-top mx-auto" alt="{{ ingredient.name }}" style="object-fit: contain; max-height: 100px;">
                                 <div class="card-body d-flex flex-column align-items-center">
-                                    <p class="mb-1" style="height: 40px; display: flex; align-items: center; justify-content: center;">{{ ingredient.name }}</p>
-                                    <p class="mb-2">{{ ingredient.price }}eur</p>
-                                    <ul>
-                                        <li>Calories: {{ingredient.nutrition.calories}}</li>
-                                        <li>Protein: {{ingredient.nutrition.protein}}</li>
-                                        <li>Fat: {{ingredient.nutrition.fat}}</li>
-                                        <li>Carbs: {{ingredient.nutrition.carbs}}</li>
-                                    </ul>
+                                    <div>
+                                        <p class="mb-1" style="height: 40px; display: flex; align-items: center; justify-content: center;"><b>{{ ingredient.name }}</b></p>
+                                        <p class="mb-2">{{ ingredient.price }}eur</p>
+                                        <p style="margin-bottom: 0.1rem;"><small><b>Nutrition</b></small></p>
+                                            <p style="margin-bottom: 0.1rem;"><small>-Calories: {{ingredient.nutrition.calories}}</small></p>
+                                            <p style="margin-bottom: 0.1rem;"><small>-Protein: {{ingredient.nutrition.protein}}</small></p>
+                                            <p style="margin-bottom: 0.1rem;"><small>-Fat: {{ingredient.nutrition.fat}}</small></p>
+                                            <p><small>-Carbs: {{ingredient.nutrition.carbs}}</small></p>
+                                    </div>
                                     <input type="number" id="qty_{{ ingredient.id }}" value="1" min="1" max="15" class="form-control mb-2">
                                     <button type="button" class="btn btn-primary" onclick="addIngredient({{ ingredient.id }}, '{{ ingredient.name }}', {{ ingredient.price }},
                                     {{ ingredient.nutrition.calories }}, {{ ingredient.nutrition.protein }}, {{ ingredient.nutrition.fat }}, {{ ingredient.nutrition.carbs }})">
@@ -107,17 +113,18 @@
             <div class="row">
                     {% for ingredient in categorized_ingredients.sauce %}
                         <div class="col-md-3 d-flex">
-                            <div class="card m-2 p-2 w-100 d-flex flex-column justify-content-between" style="width: 150px; text-align: center;">
+                            <div class="card m-2 shadow p-2 w-100 d-flex flex-column justify-content-between" style="width: 150px; text-align: center;">
                                 <img src="{{ ingredient.part_image.url }}" class="card-img-top mx-auto" alt="{{ ingredient.name }}" style="object-fit: contain; max-height: 100px;">
                                 <div class="card-body d-flex flex-column align-items-center">
-                                    <p class="mb-1" style="height: 40px; display: flex; align-items: center; justify-content: center;">{{ ingredient.name }}</p>
-                                    <p class="mb-2">{{ ingredient.price }}eur</p>
-                                    <ul>
-                                        <li>Calories: {{ingredient.nutrition.calories}}</li>
-                                        <li>Protein: {{ingredient.nutrition.protein}}</li>
-                                        <li>Fat: {{ingredient.nutrition.fat}}</li>
-                                        <li>Carbs: {{ingredient.nutrition.carbs}}</li>
-                                    </ul>
+                                    <div>
+                                        <p class="mb-1" style="height: 40px; display: flex; align-items: center; justify-content: center;"><b>{{ ingredient.name }}</b></p>
+                                        <p class="mb-2">{{ ingredient.price }}eur</p>
+                                        <p style="margin-bottom: 0.1rem;"><small><b>Nutrition</b></small></p>
+                                            <p style="margin-bottom: 0.1rem;"><small>-Calories: {{ingredient.nutrition.calories}}</small></p>
+                                            <p style="margin-bottom: 0.1rem;"><small>-Protein: {{ingredient.nutrition.protein}}</small></p>
+                                            <p style="margin-bottom: 0.1rem;"><small>-Fat: {{ingredient.nutrition.fat}}</small></p>
+                                            <p><small>-Carbs: {{ingredient.nutrition.carbs}}</small></p>
+                                    </div>
                                     <input type="number" id="qty_{{ ingredient.id }}" value="1" min="1" max="15" class="form-control mb-2">
                                     <button type="button" class="btn btn-primary" onclick="addIngredient({{ ingredient.id }}, '{{ ingredient.name }}', {{ ingredient.price }},
                                     {{ ingredient.nutrition.calories }}, {{ ingredient.nutrition.protein }}, {{ ingredient.nutrition.fat }}, {{ ingredient.nutrition.carbs }})">
@@ -131,17 +138,18 @@
             <div class="row">
                     {% for ingredient in categorized_ingredients.extras %}
                         <div class="col-md-3 d-flex">
-                            <div class="card m-2 p-2 w-100 d-flex flex-column justify-content-between" style="width: 150px; text-align: center;">
+                            <div class="card m-2 shadow p-2 w-100 d-flex flex-column justify-content-between" style="width: 150px; text-align: center;">
                                 <img src="{{ ingredient.part_image.url }}" class="card-img-top mx-auto" alt="{{ ingredient.name }}" style="object-fit: contain; max-height: 100px;">
                                 <div class="card-body d-flex flex-column align-items-center">
-                                    <p class="mb-1" style="height: 40px; display: flex; align-items: center; justify-content: center;">{{ ingredient.name }}</p>
-                                    <p class="mb-2">{{ ingredient.price }}eur</p>
-                                    <ul>
-                                        <li>Calories: {{ingredient.nutrition.calories}}</li>
-                                        <li>Protein: {{ingredient.nutrition.protein}}</li>
-                                        <li>Fat: {{ingredient.nutrition.fat}}</li>
-                                        <li>Carbs: {{ingredient.nutrition.carbs}}</li>
-                                    </ul>
+                                    <div>
+                                        <p class="mb-1" style="height: 40px; display: flex; align-items: center; justify-content: center;"><b>{{ ingredient.name }}</b></p>
+                                        <p class="mb-2">{{ ingredient.price }}eur</p>
+                                        <p style="margin-bottom: 0.1rem;"><small><b>Nutrition</b></small></p>
+                                            <p style="margin-bottom: 0.1rem;"><small>-Calories: {{ingredient.nutrition.calories}}</small></p>
+                                            <p style="margin-bottom: 0.1rem;"><small>-Protein: {{ingredient.nutrition.protein}}</small></p>
+                                            <p style="margin-bottom: 0.1rem;"><small>-Fat: {{ingredient.nutrition.fat}}</small></p>
+                                            <p><small>-Carbs: {{ingredient.nutrition.carbs}}</small></p>
+                                    </div>
                                     <input type="number" id="qty_{{ ingredient.id }}" value="1" min="1" max="15" class="form-control mb-2">
                                     <button type="button" class="btn btn-primary" onclick="addIngredient({{ ingredient.id }}, '{{ ingredient.name }}', {{ ingredient.price }},
                                     {{ ingredient.nutrition.calories }}, {{ ingredient.nutrition.protein }}, {{ ingredient.nutrition.fat }}, {{ ingredient.nutrition.carbs }})">
